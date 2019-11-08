@@ -9,15 +9,18 @@ struct _transicion {
 
 struct _nuevoestado {
     char *nombre; // Nombre del nuevo estado
-    char **estados; // Estados del AFND original. 
+    char **estados; // Estados del AFND original.
     int nestados;
+    int tipo;
 };
 
 struct _auti {
     nuevoestado **estados;
-    transicion **transiciones; 
+    transicion **transiciones;
+    char **simbolos;
     int nestados;
     int ntransiciones;
+    int nsimbolos;
 };
 
 // Funcion auxiliar de ordenación.
@@ -103,7 +106,7 @@ void print_transicion( transicion *t ) {
 }
 
 // Funciones nuevo estado.
-nuevoestado *ne_ini() {
+nuevoestado *ne_ini( int tipo ) {
     nuevoestado *ne = NULL;
     ne = malloc( sizeof(nuevoestado) );
     ne->nombre = malloc( TAM * sizeof(char) );
@@ -114,9 +117,11 @@ nuevoestado *ne_ini() {
     }
     for( int i = 0; i < 1024; i++ ) {
         ne->estados[i] = malloc( TAM * sizeof(char) );
-        if( !ne->estados[i] ) return NULL;        
+        if( !ne->estados[i] ) return NULL;
     }
-    return ne;    
+    ne->tipo = tipo;
+
+    return ne;
 }
 
 char* ne_getNombre( const nuevoestado *ne ) {
@@ -135,7 +140,7 @@ char** ne_getEstados( const nuevoestado *ne ) {
     if( !(estados) ) return NULL;
     for( int i = 0; i < 1024; i++ ) {
         estados[i] = malloc( TAM * sizeof(char) );
-        if( !estados[i] ) return NULL;        
+        if( !estados[i] ) return NULL;
     }
     for( int i = 0; i < ne->nestados; i++ ) strcpy( estados[i], ne->estados[i] );
     return estados;
@@ -158,6 +163,10 @@ int ne_getNestados( const nuevoestado *ne ) {
     return ne->nestados;
 }
 
+int ne_getTipo( const nuevoestado *ne ) {
+    return ne->tipo;
+}
+
 char *ne_procesaNombre( nuevoestado *ne ) {
     int *final = NULL;
     char *ids = NULL;
@@ -168,14 +177,14 @@ char *ne_procesaNombre( nuevoestado *ne ) {
     int nestados;
     int j = 0;
     int aux = 0;
-    
+
     final = malloc( 64 * sizeof(int) );
     ids = malloc( 128 * sizeof(char) );
     nombre = malloc( 64 * sizeof(char) );
     if( !final || !ids ) return NULL;
     estados = ne_getEstados( ne );
     nestados = ne_getNestados( ne );
-    
+
     for( int i = 0; i < nestados; i++ ) {
         j = 0;
         if( estados[i][j] == 'q' ) j++;
@@ -191,35 +200,36 @@ char *ne_procesaNombre( nuevoestado *ne ) {
     }
     ids[aux] = '\0';
     aux = 0;
-        
+
     token = strtok(ids, "#");
-    
+
     while( token != NULL ) {
-        final[aux] = atoi(token);  
+        final[aux] = atoi(token);
         token = strtok(NULL, "#");
         aux++;
     }
     aux++;
     final[aux] = -1;
-    
+
     bubble_sort( final );
     aux = 1;
-    
+
     while( final[aux] != -1 ) {
         strcat( nombre, "q" );
         sprintf( temp, "%d", final[aux] );
         strcat( nombre, temp );
-        aux++; 
+        aux++;
     }
-    
+
     return nombre;
-    
+
 }
 
 void copy_nuevoestado( nuevoestado *n1, nuevoestado *n2 ) {
     strcpy( n1->nombre, n2->nombre );
     for( int i = 0; i < n2->nestados; i++ ) strcpy( n1->estados[i], n2->estados[i] );
     n1->nestados = ne_getNestados(n2);
+    n1->tipo = ne_getTipo(n1);
     return;
 }
 
@@ -228,7 +238,7 @@ void print_nuevoestado( nuevoestado *ne ) {
     printf("Se compone de los estados: ");
     for( int i = 0; i < ne->nestados; i++ ) printf("%s ", ne->estados[i]);
     printf("\n");
-    return;    
+    return;
 }
 
 // Funciones del autómata intermedio.
@@ -236,29 +246,39 @@ auti *auti_ini() {
     auti *aut = NULL;
     aut = malloc( sizeof(auti) );
     if( !aut ) {
-        fprintf( stderr, "Error creando automata intermedio 1" );
+        fprintf( stderr, "Error creando automata intermedio 1\n" );
         return NULL;
     }
-    
+
     aut->nestados = 0;
     aut->ntransiciones = 0;
-    
+    aut->nsimbolos = 0;
+
     aut->estados = malloc( 1024 * sizeof(nuevoestado*) );
     if( !aut->estados ) {
-        fprintf( stderr, "Error creando automata intermedio 2" );
+        fprintf( stderr, "Error creando automata intermedio 2\n" );
         free(aut);
         return NULL;
     }
-    
+
     aut->transiciones = malloc( 1024 * sizeof(transicion*) );
     if( !aut->transiciones ) {
-        fprintf( stderr, "Error creando automata intermedio 3" );
+        fprintf( stderr, "Error creando automata intermedio 3\n" );
         free( aut->estados );
         free( aut );
         return NULL;
     }
-    
-    return aut;    
+
+    aut->simbolos = malloc( TAM * sizeof(char*) );
+    if( !aut->simbolos ) {
+      fprintf( stderr, "Error creando automata intermedio 4\n" );
+      free( aut-> estados );
+      free( aut-> transiciones );
+      free( aut );
+      return NULL;
+    }
+
+    return aut;
 }
 
 void auti_anadirEstado( auti *aut, nuevoestado *ne ) {
@@ -275,11 +295,19 @@ void auti_anadirTransicion( auti *aut, transicion *t ) {
     return;
 }
 
+void auti_anadirSimbolo( auti *aut, char* simbolo ) {
+    if ( !aut ) return;
+    aut->simbolos[ aut->nsimbolos ] = simbolo;
+    aut->nsimbolos++;
+    return;
+}
+
 transicion** auti_getTransiciones( const auti *aut ) {
     if( !aut ) return NULL;
     transicion **ts = NULL;
     ts = malloc( aut->ntransiciones * sizeof(transicion) );
     if( !ts ) return NULL;
+
     for( int i = 0; i < aut->ntransiciones; i++ ) {
         ts[i] = t_ini();
         copy_transicion( ts[i], aut->transiciones[i] );
@@ -292,11 +320,43 @@ nuevoestado** auti_getEstados( const auti *aut ) {
     nuevoestado **nes = NULL;
     nes = malloc( aut->nestados * sizeof(nuevoestado) );
     if( !nes ) return NULL;
+
     for( int i = 0; i < aut->nestados; i++ ) {
         nes[i] = ne_ini();
         copy_nuevoestado( nes[i], aut->estados[i] );
     }
     return nes;
+}
+
+char** auti_getSimbolos( const auti *aut ) {
+  char **simbolos = NULL;
+  simbolos = malloc( TAM * sizeof(char*) );
+  if( !simbolos ) return NULL;
+
+  for( int i = 0; i < aut->nsimbolos; i++ ) {
+      simbolos[i] = malloc( TAM * sizeof(char) );
+      if( !simbolos[i] ) {
+        free(simbolos);
+        return NULL;
+      }
+      strcpy( simbolos[i], aut->simbolos[i] );
+  }
+  return simbolos;
+}
+
+int auti_getNestados( auti *aut ) {
+  if( !aut ) return NULL;
+  return aut->nestados;
+}
+
+int auti_getNtransiciones( auti *aut ) {
+  if( !aut ) return NULL;
+  return aut->ntransiciones;
+}
+
+int auti_getNsimbolos( auti *aut ) {
+  if( !aut ) return NULL;
+  return aut->nsimbolos;
 }
 
 void print_auti( auti *a ) {
@@ -319,7 +379,7 @@ int main(int argc, char **argv) {
     printf("%s, %s, %s\n", t_getEini(t), t_getEfin(t), t_getSimbolo(t));
     copy_transicion(t2, t);
     print_transicion(t2);
-    
+
     nuevoestado *ne;
     nuevoestado *ne2;
     ne = ne_ini();
@@ -342,9 +402,9 @@ int main(int argc, char **argv) {
     copy_nuevoestado(ne2, ne);
     print_nuevoestado(ne2);
 
-    
+
     printf("\nAUTOMATA INTERMEDIO...\n");
-    
+
     auti *a;
     a = auti_ini();
     auti_anadirEstado(a, ne);
