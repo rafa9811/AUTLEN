@@ -37,7 +37,7 @@ void print_nuevoestado( nuevoestado *ne );
 auti *auti_ini();
 void auti_anadirEstado( auti *aut, nuevoestado *ne );
 void auti_anadirTransicion( auti *aut, transicion *t );
-void auti_anadirSimbolo( auti *aut, char simbolo );
+void auti_anadirSimbolo( auti *aut, char *simbolo );
 nuevoestado** auti_getEstados( const auti *aut );
 transicion** auti_getTransiciones( const auti *aut );
 char **auti_getSimbolos( const auti *aut );

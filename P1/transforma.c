@@ -67,3 +67,72 @@ AFND *AFNDTransforma( FILE *f ) {
   aut = transforma_estructura( ai );
   return aut;
 }
+
+int main() {
+  char ***estados;
+  FILE *file;
+  int nestados;
+  int nestadosfinales;
+  int nalfabeto;
+
+  int *estadosactuales;
+  int *estadosproximos;
+  int *estadosactualeslambda;
+  int flagtransicion = 0;
+  int estadoinicial;
+  int* estadosfinales;
+
+  //Leemos nuestro autómata de fichero:
+  file = fopen("automata.txt", "r");
+  nestados = getc(file)-'0';
+  //Para avanzar el espacio
+  getc(file);
+  estadoinicial = getc(file)-'0';
+  //Para avanzar el espacio
+  getc(file);
+
+  //Reservamos memoria para los estados finales;
+  estadosfinales = calloc(nestados, sizeof(int));
+
+  for(int i = 0; i<nestados; i++){
+    estadosfinales[i] = getc(file)-'0';
+  }
+  getc(file);
+  //Reservamos memoria para los estados actuales;
+  estadosactuales = calloc(nestados, sizeof(int));
+  estadosproximos = calloc(nestados, sizeof(int));
+  estadosactualeslambda = calloc(nestados, sizeof(int));
+
+  int nestadosactuales = 0;
+  int estadoactual = 0;
+  //Leemos el cardinal del alfabeto
+  nalfabeto = getc(file)-'0';
+  printf("%d\n", nalfabeto);
+  getc(file);
+  //Reservamos memoria para la matriz de estados, inicializando a 0;
+  estados = calloc(nestados, sizeof(char**));
+  for(int i = 0; i<nestados; i++){
+    estados[i] = calloc(nestados, sizeof(char*));
+    for(int j = 0; j<nestados; j++){
+      estados[i][j] = calloc(nalfabeto, sizeof(char));
+    }
+  }
+  //Como lo hemos hecho es leer del nalfabeto hasta que nos encontramos con un asterisco, que significa que no hay más.
+  //Aquí leemos la matriz de estados y transiciones.
+  for(int i = 0; i<nestados; i++){
+    for(int j = 0; j<nestados; j++){
+      for(int k = 0; k<nalfabeto+1; k++){
+        char c = getc(file);
+        if(c=='*'){
+          break;
+        }
+        estados[i][j][k] = c;
+        printf("%d, %d,%d, %c\n", i , j, k, estados[i][j][k]);
+      }
+    }
+  }
+
+  fclose(file);
+  return 0;
+
+}

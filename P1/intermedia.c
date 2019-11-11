@@ -297,7 +297,7 @@ void auti_anadirTransicion( auti *aut, transicion *t ) {
 
 void auti_anadirSimbolo( auti *aut, char* simbolo ) {
     if ( !aut ) return;
-    aut->simbolos[ aut->nsimbolos ] = simbolo;
+    strcpy( aut->simbolos[ aut->nsimbolos ], simbolo );
     aut->nsimbolos++;
     return;
 }
@@ -322,7 +322,7 @@ nuevoestado** auti_getEstados( const auti *aut ) {
     if( !nes ) return NULL;
 
     for( int i = 0; i < aut->nestados; i++ ) {
-        nes[i] = ne_ini();
+        nes[i] = ne_ini( ne_getTipo(aut->estados[i]) );
         copy_nuevoestado( nes[i], aut->estados[i] );
     }
     return nes;
@@ -345,17 +345,17 @@ char** auti_getSimbolos( const auti *aut ) {
 }
 
 int auti_getNestados( auti *aut ) {
-  if( !aut ) return NULL;
+  if( !aut ) return -1;
   return aut->nestados;
 }
 
 int auti_getNtransiciones( auti *aut ) {
-  if( !aut ) return NULL;
+  if( !aut ) return -1;
   return aut->ntransiciones;
 }
 
 int auti_getNsimbolos( auti *aut ) {
-  if( !aut ) return NULL;
+  if( !aut ) return -1;
   return aut->nsimbolos;
 }
 
@@ -367,7 +367,7 @@ void print_auti( auti *a ) {
     return;
 }
 
-
+/*
 int main(int argc, char **argv) {
     transicion *t;
     transicion *t2;
@@ -382,8 +382,8 @@ int main(int argc, char **argv) {
 
     nuevoestado *ne;
     nuevoestado *ne2;
-    ne = ne_ini();
-    ne2 = ne_ini();
+    ne = ne_ini(0);
+    ne2 = ne_ini(1);
     ne_setNombre(ne, "q0q1q2");
     ne_anadirEstado(ne, "q0");
     ne_anadirEstado(ne, "q20");
@@ -422,3 +422,5 @@ int main(int argc, char **argv) {
     print_auti(a);
     return 0;
 }
+*/
+
