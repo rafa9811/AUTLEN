@@ -31,4 +31,4 @@ Retorno:
   - AFND: AFD con estructura AFND.
   - NULL, en caso de error.
 **/
-AFND *AFNDTransforma( FILE *f )
+AFND *AFNDTransforma( FILE *f );

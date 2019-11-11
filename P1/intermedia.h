@@ -40,7 +40,7 @@ void auti_anadirTransicion( auti *aut, transicion *t );
 void auti_anadirSimbolo( auti *aut, char simbolo );
 nuevoestado** auti_getEstados( const auti *aut );
 transicion** auti_getTransiciones( const auti *aut );
-char *auti_getSimbolos( const auti *aut )
+char **auti_getSimbolos( const auti *aut );
 int auti_getNestados( auti *aut );
 int auti_getNtransiciones( auti *aut );
 int auti_getNsimbolos( auti *aut );

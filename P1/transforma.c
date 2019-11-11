@@ -1,6 +1,5 @@
 #include "transforma.h"
 
-
 AFND *transforma_estructura( auti *a ) {
   if( !a ) {
     fprintf( stderr, "transforma_estructura: aut_int es NULL\n");
@@ -8,8 +7,8 @@ AFND *transforma_estructura( auti *a ) {
   }
   AFND *p_afnd = NULL;
   AFND *afd = NULL;
-  transicion* transiciones = NULL;
-  nuevoestado *estados = NULL;
+  transicion **transiciones = NULL;
+  nuevoestado **estados = NULL;
   char **alfabeto;
   int nestados = 0;
   int nsimbolos = 0;
@@ -23,7 +22,7 @@ AFND *transforma_estructura( auti *a ) {
 
   // Creamos el AFND.
   p_afnd = AFNDNuevo( "af11", nestados, nsimbolos );
-  if( !p_afnd ){
+  if( !p_afnd ) {
     fprintf( stderr, "transforma_estructura: error creando AFND\n" );
     return NULL;
   }
@@ -37,7 +36,7 @@ AFND *transforma_estructura( auti *a ) {
   // Insertamos estados.
   estados = auti_getEstados( a );
   for( int i = 0; i < nestados; i++ ) {
-    AFNDInsertaSimbolo( p_afnd, ne_getNombre(estados[i]), ne_getTipo(estados[i]) );
+    AFNDInsertaEstado( p_afnd, ne_getNombre(estados[i]), ne_getTipo(estados[i]) );
   }
 
   // Insertamos transiciones. Asumimos que no tendremos transiciones lambdas.
@@ -63,7 +62,7 @@ AFND *AFNDTransforma( FILE *f ) {
     return NULL;
   }
 
-  // Aquí el algoritmo para convertir el autómata.
+  //Aquí el codigo del algoritmo.
 
   aut = transforma_estructura( ai );
   return aut;
