@@ -2,8 +2,8 @@
 #define TAM 64
 
 struct _transicion {
-    char *eini;
-    char *efin;
+    nuevoestado *eini;
+    nuevoestado *efin;
     char simbolo[16];
 };
 
@@ -46,12 +46,32 @@ void bubble_sort( int *lista ) {
     }
 }
 
+// Funciones auxiliares de tratamiento de estados.
+int NumeroEstado( char *nombre ) {
+  if( !nombre ) return -1;
+  int numero;
+  numero = atoi( (nombre + 1) );
+  return numero;
+}
+
+char *NombreEstado( int numero ) {
+  if( numero < 0 ) return NULL;
+  char *nombre = NULL;
+  nombre = malloc(16 * sizeof(char));
+  char aux[16];
+  nombre[0] = 'q';
+  nombre[1] = '\0';
+  sprintf(aux, "%d", numero);
+  strcat(nombre, aux);
+  return nombre;
+}
+
 // Funciones transición.
 transicion* t_ini() {
     transicion *t = NULL;
     t = malloc( sizeof(transicion) );
-    t->eini = malloc( TAM * sizeof(char) );
-    t->efin = malloc( TAM * sizeof(char) );
+    t->eini = ne_ini(10);
+    t->efin = ne_ini(10);
     if( !t || !t->eini || !t->efin ) {
         fprintf(stderr, "Error iniciando transicion");
         return NULL;
@@ -59,22 +79,22 @@ transicion* t_ini() {
     return t;
 }
 
-char* t_getEini( const transicion *t ) {
+nuevoestado* t_getEini( const transicion *t ) {
     if( !t ) return NULL;
-    char *estado = NULL;
-    estado = (char*) malloc( TAM * sizeof(char) );
+    nuevoestado *estado = NULL;
+    estado = ne_ini(10);
     if( !estado ) return NULL;
-    strcpy( estado, t->eini );
+    copy_nuevoestado(estado, t->eini);
     return estado;
 }
 
-char* t_getEfin( const transicion *t ) {
-    if( !t ) return NULL;
-    char *estado = NULL;
-    estado = (char*) malloc( TAM * sizeof(char) );
-    if( !estado ) return NULL;
-    strcpy( estado, t->efin );
-    return estado;
+nuevoestado* t_getEfin( const transicion *t ) {
+  if( !t ) return NULL;
+  nuevoestado *estado = NULL;
+  estado = ne_ini(10);
+  if( !estado ) return NULL;
+  copy_nuevoestado(estado, t->efin);
+  return estado;
 }
 
 char* t_getSimbolo( const transicion *t ) {
@@ -86,30 +106,29 @@ char* t_getSimbolo( const transicion *t ) {
 }
 
 void copy_transicion( transicion *t1, transicion *t2 ) {
-    strcpy( t1->eini, t2->eini );
-    strcpy( t1->efin, t2->efin );
+    copy_nuevoestado( t1->eini, t2->eini );
+    copy_nuevoestado( t1->efin, t2->efin );
     strcpy( t1->simbolo, t2->simbolo );
     return;
 }
 
-transicion* t_set( transicion *t, char *inicial, char *final, char *simbolo ) {
+transicion* t_set( transicion *t, nuevoestado *inicial, nuevoestado *final, char *simbolo ) {
     if( !t || !inicial || !final ) return NULL;
-    strcpy( t->eini, inicial );
-    strcpy( t->efin, final );
+    copy_nuevoestado( t->eini, inicial );
+    copy_nuevoestado( t->efin, final );
     strcpy( t->simbolo, simbolo );
+    printf("%s\n", t->simbolo);
     return t;
 }
 
-transicion* t_set_efin( transicion *t, char *final) {
-    if( !t || !inicial || !final ) return NULL;
-
-    strcpy( t->efin, final );
-    
+transicion* t_set_efin( transicion *t, nuevoestado *final ) {
+    if( !t || !final ) return NULL;
+    copy_nuevoestado( t->efin, final );
     return t;
 }
 
 void print_transicion( transicion *t ) {
-    printf("Estado inicial: %s, estado final: %s, con simbolo %s\n", t->eini, t->efin, t->simbolo);
+    printf("Estado inicial: %s, estado final: %s, con simbolo %s\n", ne_getNombre(t->eini), ne_getNombre(t->efin), t->simbolo);
     return;
 }
 
@@ -161,7 +180,7 @@ nuevoestado* ne_setNombre( nuevoestado *ne, char *nombre ) {
 }
 
 nuevoestado* ne_anadirEstado( nuevoestado *ne, char *estado ) {
-    if( !estado || !ne ) return;
+    if( !estado || !ne ) return NULL;
     ne->estados[ ne->nestados ] = estado;
     ne->nestados++;
     return ne;
@@ -237,7 +256,7 @@ void copy_nuevoestado( nuevoestado *n1, nuevoestado *n2 ) {
     strcpy( n1->nombre, n2->nombre );
     for( int i = 0; i < n2->nestados; i++ ) strcpy( n1->estados[i], n2->estados[i] );
     n1->nestados = ne_getNestados(n2);
-    n1->tipo = ne_getTipo(n1);
+    n1->tipo = ne_getTipo(n2);
     return;
 }
 
@@ -287,6 +306,13 @@ auti *auti_ini() {
     }
 
     return aut;
+}
+
+void auti_iniAlfabeto(auti *a ,int nalfabeto) {
+  for( int i = 0; i<nalfabeto; i++){
+    a->simbolos[i] = malloc(TAM * sizeof(char));
+  }
+  return;
 }
 
 void auti_anadirEstado( auti *aut, nuevoestado *ne ) {
@@ -374,6 +400,8 @@ void print_auti( auti *a ) {
     for( int i = 0; i < a->ntransiciones; i++) print_transicion( a->transiciones[i] );
     return;
 }
+
+
 
 /*
 int main(int argc, char **argv) {

@@ -14,12 +14,12 @@ typedef struct _transicion transicion;
 
 // FUNCIONES TRANSICIÓN
 transicion* t_ini();
-char* t_getEini( const transicion *t );
-char* t_getEfin( const transicion *t );
+nuevoestado* t_getEini( const transicion *t );
+nuevoestado* t_getEfin( const transicion *t );
 char* t_getSimbolo( const transicion *t );
 void copy_transicion( transicion *t1, transicion *t2 );
-transicion* t_set( transicion *t, char *inicial, char *final, char *simbolo );
-transicion* t_set_efin( transicion *t, char *final);
+transicion* t_set( transicion *t, nuevoestado *inicial, nuevoestado *final, char *simbolo );
+transicion* t_set_efin( transicion *t, nuevoestado *final);
 void print_transicion( transicion *t );
 
 // FUNCIONES NUEVOESTADO
@@ -34,9 +34,12 @@ char *ne_procesaNombre( nuevoestado *ne );
 void copy_nuevoestado( nuevoestado *n1, nuevoestado *n2 );
 void print_nuevoestado( nuevoestado *ne );
 
+char* NombreEstado(int numero);
+int NumeroEstado(char* nombre);
 // FUNCIONES AUTOMATA INTERMEDIO
 auti *auti_ini();
 void auti_anadirEstado( auti *aut, nuevoestado *ne );
+void auti_iniAlfabeto( auti *a ,int nalfabeto );
 void auti_anadirTransicion( auti *aut, transicion *t );
 void auti_anadirSimbolo( auti *aut, char *simbolo );
 nuevoestado** auti_getEstados( const auti *aut );
