@@ -19,6 +19,7 @@ char* t_getEfin( const transicion *t );
 char* t_getSimbolo( const transicion *t );
 void copy_transicion( transicion *t1, transicion *t2 );
 transicion* t_set( transicion *t, char *inicial, char *final, char *simbolo );
+transicion* t_set_efin( transicion *t, char *final);
 void print_transicion( transicion *t );
 
 // FUNCIONES NUEVOESTADO
@@ -28,7 +29,7 @@ char** ne_getEstados( const nuevoestado *ne );
 int ne_getTipo( const nuevoestado *ne );
 int ne_getNestados( const nuevoestado *ne );
 nuevoestado* ne_setNombre( nuevoestado *ne, char *nombre );
-void ne_anadirEstado( nuevoestado *ne, char *estado );
+nuevoestado* ne_anadirEstado( nuevoestado *ne, char *estado );
 char *ne_procesaNombre( nuevoestado *ne );
 void copy_nuevoestado( nuevoestado *n1, nuevoestado *n2 );
 void print_nuevoestado( nuevoestado *ne );

@@ -68,13 +68,18 @@ AFND *AFNDTransforma( FILE *f ) {
   return aut;
 }
 
-int main() {
+void main(int argc, char**argv) {
   char ***estados;
   FILE *file;
   int nestados;
   int nestadosfinales;
   int nalfabeto;
-
+  int *transactuales;
+  int ntransactuales;
+  nuevoestado * efinales;
+  transicion * tfinales;
+  int ntfinales;
+  int nefinales;
   int *estadosactuales;
   int *estadosproximos;
   int *estadosactualeslambda;
@@ -99,6 +104,8 @@ int main() {
   }
   getc(file);
   //Reservamos memoria para los estados actuales;
+  transicion transactuales[50];
+  ntransactuales = 0;
   estadosactuales = calloc(nestados, sizeof(int));
   estadosproximos = calloc(nestados, sizeof(int));
   estadosactualeslambda = calloc(nestados, sizeof(int));
@@ -133,6 +140,56 @@ int main() {
   }
 
   fclose(file);
-  return 0;
+  transicion *transini;
+  transini = t_ini();
+  transini = t_set(transini, NULL, estadoinicial, NULL);
+  transactuales[ntransactuales]=transini;
+  ntransactuales++;
+  //Pasamos de las transiciones actuales a estados actuales para encontrar los lambda.
+  for(int i=0; i<ntransactuales; i++){
+    ne = NumeroEstado(t_getEfin(transactuales[n]));
+    estadosactuales[ne]=1;
+    memcpy(estadosactualeslambda, estadosactuales, nestados * sizeof(int));
+
+  //Ahora hacemos un dowhile porque en el primero si son iguales.
+  //A partir de una transición, queremos ver a cuántas podemos llegar con lambda, por eso lo hacemos de uno en uno.
+    do
+    {
+      memcpy(estadosactuales, estadosactualeslambda, nestados * sizeof(int));
+      printf("En estado actual para ver lambdas %d:\ne", n);
+      for(int j=0; j<nestados; j++) {
+        for(int k=0; k<nalfabeto; k++) {
+          if(estados[ne][j][k]=='|') {
+            printf("hemos encontrado lambda\n");
+              estadosactualeslambda[j]=1;
+          }
+        }
+      }
+
+      printf("he salido \n");
+    } while(memcmp(estadosactualeslambda, estadosactuales, nestados * sizeof(int)) != 0);
+    //Ahora sabemos que todos los estados actuales tienen que ir en uno solo, es decir, actualizar nuestra transición y su nombre.
+    nuevoestado *e;
+    e = ne_ini(10);
+    for(int i = 0; i<nestados; i++){
+      if(estadosactuales[i]==1){
+        e = ne_anadirEstado(e, NombreEstado(i));
+      }
+    }
+    ne_setNombre(ne_procesaNombre(e));
+    efinales[nefinales]=e;
+    nefinales++;
+    t_set_efin(transactuales[ntransactuales],e);
+    tfinales[ntfinales] = transactuales[ntransactuales];
+    ntfinales++;
+  }
+    //Una vez que lo hemos hecho, podemos seguir con la próxima transición.
+
+
+
+
+
+
+
 
 }

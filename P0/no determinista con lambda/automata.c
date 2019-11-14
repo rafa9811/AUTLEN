@@ -92,7 +92,7 @@ void main(int argc, char**argv) {
     memcpy(estadosactualeslambda, estadosactuales, nestados * sizeof(int));
 //Ahora hacemos un dowhile porque en el primero si son iguales.
 
-  do 
+  do
   {
     memcpy(estadosactuales, estadosactualeslambda, nestados * sizeof(int));
     for(int n=0; n<nestados; n++) {
@@ -101,12 +101,14 @@ void main(int argc, char**argv) {
          for(int j=0; j<nestados; j++) {
             for(int k=0; k<nalfabeto; k++) {
                if(estados[n][j][k]=='|') {
+                 printf("hemos encontrado lambda\n");
                   estadosactualeslambda[j]=1;
                }
             }
          }
       }
     }
+    printf("he salido \n");
   } while(memcmp(estadosactualeslambda, estadosactuales, nestados * sizeof(int)) != 0);
 
 //Aquí ya pasamos a calcular los proximos.
@@ -117,6 +119,7 @@ void main(int argc, char**argv) {
             for(int k=0; k<nalfabeto; k++){
                if(estados[n][j][k]==cadena[i]){
                   estadosproximos[j]=1;
+                  printf("Hemos añadido a estados proximos el %d\n", j);
                   flagtransicion = 1;
                }
             }
@@ -139,7 +142,7 @@ for(int i=0; i<nestados;i++){
       if(estadosactuales[i]==1 && estadosfinales[i]==1){
          printf("Hemos reconocido la palabra en %d\n", i);
          return;
- 
+
    }
 }
 printf("No hemos reconocido la palabra");

@@ -100,6 +100,14 @@ transicion* t_set( transicion *t, char *inicial, char *final, char *simbolo ) {
     return t;
 }
 
+transicion* t_set_efin( transicion *t, char *final) {
+    if( !t || !inicial || !final ) return NULL;
+
+    strcpy( t->efin, final );
+    
+    return t;
+}
+
 void print_transicion( transicion *t ) {
     printf("Estado inicial: %s, estado final: %s, con simbolo %s\n", t->eini, t->efin, t->simbolo);
     return;
@@ -152,11 +160,11 @@ nuevoestado* ne_setNombre( nuevoestado *ne, char *nombre ) {
     return ne;
 }
 
-void ne_anadirEstado( nuevoestado *ne, char *estado ) {
+nuevoestado* ne_anadirEstado( nuevoestado *ne, char *estado ) {
     if( !estado || !ne ) return;
     ne->estados[ ne->nestados ] = estado;
     ne->nestados++;
-    return;
+    return ne;
 }
 
 int ne_getNestados( const nuevoestado *ne ) {
@@ -423,4 +431,3 @@ int main(int argc, char **argv) {
     return 0;
 }
 */
-
