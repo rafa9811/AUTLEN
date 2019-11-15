@@ -1,52 +1,54 @@
 #include "transforma.h"
 
-// AFND *transforma_estructura( auti *a ) {
-//   if( !a ) {
-//     fprintf( stderr, "transforma_estructura: aut_int es NULL\n");
-//     return NULL;
-//   }
-//   AFND *p_afnd = NULL;
-//   AFND *afd = NULL;
-//   transicion **transiciones = NULL;
-//   nuevoestado **estados = NULL;
-//   char **alfabeto;
-//   int nestados = 0;
-//   int nsimbolos = 0;
-//   int ntransiciones = 0;
-//
-//   // Vemos cuantos estados, simbolos y transiciones tenemos extrayéndolos de la
-//   // estructura intermedia.
-//   nestados = auti_getNestados( a );
-//   nsimbolos = auti_getNsimbolos( a );
-//   ntransiciones = auti_getNtransiciones( a );
-//
-//   // Creamos el AFND.
-//   p_afnd = AFNDNuevo( "af11", nestados, nsimbolos );
-//   if( !p_afnd ) {
-//     fprintf( stderr, "transforma_estructura: error creando AFND\n" );
-//     return NULL;
-//   }
-//
-//   // Insertamos el alfabeto letra a letra.
-//   alfabeto = auti_getSimbolos( a );
-//   for( int i = 0; i < nsimbolos; i++ ) {
-//     AFNDInsertaSimbolo( p_afnd, alfabeto[i] );
-//   }
-//
-//   // Insertamos estados.
-//   estados = auti_getEstados( a );
-//   for( int i = 0; i < nestados; i++ ) {
-//     AFNDInsertaEstado( p_afnd, ne_getNombre(estados[i]), ne_getTipo(estados[i]) );
-//   }
-//
-//   // Insertamos transiciones. Asumimos que no tendremos transiciones lambdas.
-//   transiciones = auti_getTransiciones( a );
-//   for( int i = 0; i < ntransiciones; i++ ) {
-//     AFNDInsertaTransicion( p_afnd, t_getEini(transiciones[i]), t_getSimbolo(transiciones[i]), t_getEfin(transiciones[i]) );
-//   }
-//
-//   return p_afnd;
-// }
+AFND *transforma_estructura( auti *a ) {
+  if( !a ) {
+    fprintf( stderr, "transforma_estructura: aut_int es NULL\n");
+    return NULL;
+  }
+  AFND *p_afnd = NULL;
+  AFND *afd = NULL;
+  transicion **transiciones = NULL;
+  nuevoestado **estados = NULL;
+  char **alfabeto;
+  int nestados = 0;
+  int nsimbolos = 0;
+  int ntransiciones = 0;
+
+  // Vemos cuantos estados, simbolos y transiciones tenemos extrayéndolos de la
+  // estructura intermedia.
+  nestados = auti_getNestados( a );
+  nsimbolos = auti_getNsimbolos( a );
+  ntransiciones = auti_getNtransiciones( a );
+
+  // Creamos el AFND.
+  p_afnd = AFNDNuevo( "af11", nestados, nsimbolos );
+  if( !p_afnd ) {
+    fprintf( stderr, "transforma_estructura: error creando AFND\n" );
+    return NULL;
+  }
+
+  // Insertamos el alfabeto letra a letra.
+  alfabeto = auti_getSimbolos( a );
+  for( int i = 0; i < nsimbolos; i++ ) {
+    AFNDInsertaSimbolo( p_afnd, alfabeto[i] );
+  }
+
+  // Insertamos estados.
+  estados = auti_getEstados( a );
+  for( int i = 0; i < nestados; i++ ) {
+    AFNDInsertaEstado( p_afnd, ne_getNombre(estados[i]), ne_getTipo(estados[i]) );
+  }
+
+  // Insertamos transiciones. Asumimos que no tendremos transiciones lambdas.
+  transiciones = auti_getTransiciones( a );
+  for( int i = 0; i < ntransiciones; i++ ) {
+    if( strcmp(ne_getNombre(t_getEini(transiciones[i])), "principio") != 0 ) {
+      AFNDInsertaTransicion( p_afnd, ne_getNombre(t_getEini(transiciones[i])), t_getSimbolo(transiciones[i]), ne_getNombre(t_getEfin(transiciones[i])) );
+    }
+  }
+
+  return p_afnd;
+}
 
 
 // AFND *AFNDTransforma( FILE *f ) {
@@ -70,6 +72,7 @@
 
 
 void main(int argc, char**argv) {
+  AFND *aut = NULL;
   char ***estados;
   FILE *file;
   int nestados;
@@ -90,6 +93,7 @@ void main(int argc, char**argv) {
   int estadoinicial;
   int* estadosfinales;
   int ne;
+  int flagtransitar;
   transicion *trans;
   nuevoestado *eaux1, *eaux2;
   char simbolo[2];
@@ -122,9 +126,6 @@ void main(int argc, char**argv) {
   }
   getc(file);
   //Reservamos memoria para los estados actuales;
-
-
-
 
   estadosactuales = calloc(nestados, sizeof(int));
   estadosproximos = calloc(nestados, sizeof(int));
@@ -173,11 +174,13 @@ void main(int argc, char**argv) {
 
   transicion *transini;
   transini = t_ini();
-  nuevoestado *einicial;
+  nuevoestado *einicial, *evacio;
   einicial = ne_ini(INICIAL);
+  evacio = ne_ini(UNDEFINED);
+  ne_setNombre(evacio, "principio");
   ne_anadirEstado(einicial, NombreEstado(estadoinicial));
   ne_setNombre(einicial, NombreEstado(estadoinicial));
-  transini = t_set_efin(transini, einicial);
+  transini = t_set( transini, evacio, einicial, "-");
   print_nuevoestado(t_getEfin(transini));
   transactuales[ntransactuales]=transini;
   ntransactuales++;
@@ -187,7 +190,7 @@ void main(int argc, char**argv) {
   //Pasamos de las transiciones actuales a estados actuales para encontrar los lambda.
 while(ntransactuales != 0){
 
-
+  flagtransitar = 0;
   for(int i=0; i<ntransactuales; i++){
     ntransproximas = 0;
     printf("Tratamos para lambda la siguiente transición:\n");
@@ -229,15 +232,21 @@ while(ntransactuales != 0){
     } while(memcmp(estadosactualeslambda, estadosactuales, nestados * sizeof(int)) != 0);
     //Ahora sabemos que todos los estados actuales tienen que ir en uno solo, es decir, actualizar nuestra transición y su nombre.
     nuevoestado *e;
-    e = ne_ini(UNDEFINED);
+    e = ne_ini(NORMAL);
     for(int m = 0; m<nestados; m++){
       if(estadosactuales[m]==1){
         e = ne_anadirEstado(e, NombreEstado(m));
+        if( estadosfinales[m] == 1 ) ne_setTipo( e, FINAL );
+        if( estadoinicial == m ) ne_setTipo( e, INICIAL );
+        if( estadoinicial == m && estadosfinales[m]==1 ) ne_setTipo( e, INICIAL_Y_FINAL );
       }
     }
+
     ne_setNombre(e, ne_procesaNombre(e));
     //Añadimos a nuestra estructura intermedia el estado y la transicion.
-    auti_anadirEstado(autointer, e);
+    if(auti_anadirEstado(autointer, e)==0){
+      flagtransitar = 1;
+    }
     t_set_efin(transactuales[i],e);
     printf("Añadimos al autómata la transicion:\n");
     print_transicion(transactuales[i]);
@@ -245,6 +254,15 @@ while(ntransactuales != 0){
     //Una vez que lo hemos hecho, podemos seguir con la próxima transición.
   }
 
+  //Miramos si realmente hemos añadido estados:
+  if(flagtransitar != 1){
+    print_auti(autointer);
+    printf("\nHemos terminado!!!\n\n");
+    aut = transforma_estructura( autointer );
+    AFNDImprime( stdout, aut );
+    AFNDADot( aut );
+    return;
+  }
   //Ahora que ya tenemos nuestras transiciones almacenadas, tenemos que coger estas actuales que son definitivas
   //y ver hacia dónde nos llevan.
   ntransproximas = 0;
@@ -329,8 +347,6 @@ while(ntransactuales != 0){
     }
     ntransaux = 0;
   }
-  printf("%d,%d JESUSUSUSUSUSUSUSUSUSUSUSUSUSUSU", ntransproximasantiguas, ntransproximas);
-  fflush(stdout);
 
 
   /*if(memcmp(transproximasantiguas, transproximas, ntransproximasantiguas * sizeof(transicion*))==0){
@@ -338,15 +354,14 @@ while(ntransactuales != 0){
     return;
   }*/
 
-  memcpy(transproximasantiguas, transproximas, ntransproximas * sizeof(transicion*));
-  ntransproximasantiguas = ntransproximas;
+
 
   memcpy(transactuales, transproximas, ntransproximas * sizeof(transicion*));
   ntransactuales = ntransproximas;
 
 }
 
-  //print_auti(autointer);
+
   return;
 
 

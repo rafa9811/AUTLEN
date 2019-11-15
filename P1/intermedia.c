@@ -206,6 +206,19 @@ nuevoestado* ne_setNombre( nuevoestado *ne, char *nombre ) {
     return ne;
 }
 
+nuevoestado *ne_setTipo( nuevoestado *ne, int tipo ) {
+    if( !ne ) {
+      fprintf( stderr, "El estado a modificar es NULL\n" );
+      return NULL;
+    }
+    if( tipo != INICIAL && tipo != FINAL && tipo != INICIAL_Y_FINAL && tipo != NORMAL && tipo != UNDEFINED ) {
+      fprintf( stderr, "Tipo de estado no identificado\n" );
+      return NULL;
+    }
+    ne->tipo = tipo;
+    return ne;
+}
+
 nuevoestado* ne_anadirEstado( nuevoestado *ne, char *estado ) {
     if( !estado || !ne ) return NULL;
     ne->estados[ ne->nestados ] = estado;
@@ -298,10 +311,15 @@ void copy_nuevoestado( nuevoestado *n1, nuevoestado *n2 ) {
 }
 
 void print_nuevoestado( nuevoestado *ne ) {
-    printf("Nombre: %s\n", ne->nombre);
-    printf("Se compone de los estados: ");
-    for( int i = 0; i < ne->nestados; i++ ) printf("%s ", ne->estados[i]);
-    printf("\n");
+    printf( "Nombre: %s\n", ne->nombre );
+    printf( "Se compone de los estados: " );
+    for( int i = 0; i < ne->nestados; i++ ) printf( "%s ", ne->estados[i] );
+    if( ne_getTipo(ne) == 0 ) printf( "\n del tipo INICIAL" );
+    if( ne_getTipo(ne) == 1 ) printf( "\n del tipo FINAL" );
+    if( ne_getTipo(ne) == 2 ) printf( "\n del tipo INICIAL_Y_FINAL" );
+    if( ne_getTipo(ne) == 3 ) printf( "\n del tipo NORMAL" );
+    if( ne_getTipo(ne) == 10 ) printf( "\n del tipo UNDEFINED" );
+    printf( "\n" );
     return;
 }
 
@@ -356,17 +374,17 @@ void auti_iniAlfabeto(auti *a ,int nalfabeto) {
   return;
 }
 
-void auti_anadirEstado( auti *aut, nuevoestado *ne ) {
-    if( !aut || !ne ) return;
+int auti_anadirEstado( auti *aut, nuevoestado *ne ) {
+    if( !aut || !ne ) return -2;
     for( int w = 0; w < auti_getNestados(aut); w++ ) {
       if( ne_cmp(ne, auti_getEstados(aut)[w]) == 0 ) {
         fprintf( stderr, "El estado que intenta añadir ya está en el autómata\n" );
-        return;
+        return -1;
       }
     }
     aut->estados[ aut->nestados ] = ne;
     aut->nestados++;
-    return;
+    return 0;
 }
 
 void auti_anadirTransicion( auti *aut, transicion *t ) {

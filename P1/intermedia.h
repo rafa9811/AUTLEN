@@ -33,6 +33,7 @@ int ne_getTipo( const nuevoestado *ne );
 int ne_getNestados( const nuevoestado *ne );
 nuevoestado* ne_setNombre( nuevoestado *ne, char *nombre );
 nuevoestado* ne_anadirEstado( nuevoestado *ne, char *estado );
+nuevoestado *ne_setTipo( nuevoestado *ne, int tipo );
 char *ne_procesaNombre( nuevoestado *ne );
 int ne_cmp( nuevoestado *ne1, nuevoestado *ne2 );
 void copy_nuevoestado( nuevoestado *n1, nuevoestado *n2 );
@@ -42,7 +43,7 @@ int NumeroEstado(char* nombre);
 
 // FUNCIONES AUTOMATA INTERMEDIO
 auti *auti_ini();
-void auti_anadirEstado( auti *aut, nuevoestado *ne );
+int auti_anadirEstado( auti *aut, nuevoestado *ne );
 void auti_iniAlfabeto( auti *a ,int nalfabeto );
 void auti_anadirTransicion( auti *aut, transicion *t );
 void auti_anadirSimbolo( auti *aut, char *simbolo );
