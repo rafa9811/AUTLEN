@@ -4,7 +4,7 @@
 struct _transicion {
     nuevoestado *eini;
     nuevoestado *efin;
-    char simbolo[16];
+    char *simbolo;
 };
 
 struct _nuevoestado {
@@ -73,10 +73,26 @@ transicion* t_ini() {
     t->eini = ne_ini(10);
     t->efin = ne_ini(10);
     if( !t || !t->eini || !t->efin ) {
-        fprintf(stderr, "Error iniciando transicion");
+        fprintf( stderr, "Error iniciando transicion" );
         return NULL;
     }
+    t->simbolo = malloc( 16 * sizeof(char) );
+    if( !t->simbolo ){
+      fprintf( stderr, "Error iniciando simbolo en transicion\n" );
+    }
     return t;
+}
+
+void t_free( transicion *t ) {
+  if( !t ) {
+    fprintf( stderr, "La transición a liberar es NULL\n" );
+    return;
+  }
+  if( t_getEini(t) ) ne_free( t_getEini(t) );
+  if( t_getEfin(t) ) ne_free( t_getEfin(t) );
+  free( t_getSimbolo(t) );
+  free( t );
+  return;
 }
 
 nuevoestado* t_getEini( const transicion *t ) {
@@ -113,11 +129,10 @@ void copy_transicion( transicion *t1, transicion *t2 ) {
 }
 
 transicion* t_set( transicion *t, nuevoestado *inicial, nuevoestado *final, char *simbolo ) {
-    if( !t || !inicial || !final ) return NULL;
-    copy_nuevoestado( t->eini, inicial );
-    copy_nuevoestado( t->efin, final );
-    strcpy( t->simbolo, simbolo );
-    printf("%s\n", t->simbolo);
+    if( !t ) return NULL;
+    if( inicial ) copy_nuevoestado( t->eini, inicial );
+    if( final ) copy_nuevoestado( t->efin, final );
+    if( simbolo ) strcpy( t->simbolo, simbolo );
     return t;
 }
 
@@ -149,6 +164,18 @@ nuevoestado *ne_ini( int tipo ) {
     ne->tipo = tipo;
 
     return ne;
+}
+
+void ne_free( nuevoestado *ne ) {
+  if( !ne ) {
+    fprintf( stderr, "El nuevoestado a liberar es NULL\n" );
+    return;
+  }
+  free( ne->nombre );
+  for( int i = 0; i < 1024; i++ ) free( ne->estados[i] );
+  free( ne->estados );
+  free( ne );
+  return;
 }
 
 char* ne_getNombre( const nuevoestado *ne ) {

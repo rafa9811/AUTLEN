@@ -6,6 +6,7 @@
 #define FINAL	1
 #define INICIAL_Y_FINAL	2
 #define NORMAL 3
+#define UNDEFINED 10
 
 
 typedef struct _auti auti;
@@ -14,6 +15,7 @@ typedef struct _transicion transicion;
 
 // FUNCIONES TRANSICIÓN
 transicion* t_ini();
+void t_free( transicion *t );
 nuevoestado* t_getEini( const transicion *t );
 nuevoestado* t_getEfin( const transicion *t );
 char* t_getSimbolo( const transicion *t );
@@ -24,6 +26,7 @@ void print_transicion( transicion *t );
 
 // FUNCIONES NUEVOESTADO
 nuevoestado *ne_ini( int tipo );
+void ne_free( nuevoestado *ne );
 char* ne_getNombre( const nuevoestado *ne );
 char** ne_getEstados( const nuevoestado *ne );
 int ne_getTipo( const nuevoestado *ne );
