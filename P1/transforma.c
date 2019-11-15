@@ -51,30 +51,13 @@ AFND *transforma_estructura( auti *a ) {
 }
 
 
-// AFND *AFNDTransforma( FILE *f ) {
-//   if( !f ) {
-//     fprintf( stderr, "AFNDTransforma: no existe fichero\n" );
-//     return NULL;
-//   }
-//   auti *ai = NULL;
-//   AFND *aut = NULL;
-//   ai = auti_ini();
-//   if( !ai ) {
-//     fprintf(stderr, "AFNDTransforma: error creando aut. intermedio\n" );
-//     return NULL;
-//   }
-//
-//   //Aquí el codigo del algoritmo.
-//
-//   aut = transforma_estructura( ai );
-//   return aut;
-// }
-
-
-void main(int argc, char**argv) {
+AFND *AFNDTransforma( FILE *file ) {
+  if( !file ) {
+    fprintf( stderr, "AFNDTransforma: no existe fichero\n" );
+    return NULL;
+  }
   AFND *aut = NULL;
   char ***estados;
-  FILE *file;
   int nestados;
   int nestadosfinales;
   int nalfabeto;
@@ -109,8 +92,7 @@ void main(int argc, char**argv) {
   }
 
   transaux = malloc( 50 * sizeof(transicion*) );
-  //Leemos nuestro autómata de fichero:
-  file = fopen("automata.txt", "r");
+
   nestados = getc(file)-'0';
   //Para avanzar el espacio
   getc(file);
@@ -259,9 +241,7 @@ while(ntransactuales != 0){
     print_auti(autointer);
     printf("\nHemos terminado!!!\n\n");
     aut = transforma_estructura( autointer );
-    AFNDImprime( stdout, aut );
-    AFNDADot( aut );
-    return;
+    return aut;
   }
   //Ahora que ya tenemos nuestras transiciones almacenadas, tenemos que coger estas actuales que son definitivas
   //y ver hacia dónde nos llevan.
@@ -348,26 +328,31 @@ while(ntransactuales != 0){
     ntransaux = 0;
   }
 
-
-  /*if(memcmp(transproximasantiguas, transproximas, ntransproximasantiguas * sizeof(transicion*))==0){
-    printf("Hemos terminado");
-    return;
-  }*/
-
-
-
   memcpy(transactuales, transproximas, ntransproximas * sizeof(transicion*));
   ntransactuales = ntransproximas;
 
+  }
 }
 
 
+void main(int argc, char**argv) {
+  if( argc != 2 ) {
+    fprintf( stderr, "MODO DE EJECUCION: ./transforma path_automata.txt\n" );
+    return;
+  }
+  AFND *aut = NULL;
+  FILE *file = NULL;
+
+  //Leemos nuestro autómata de fichero:
+  file = fopen(argv[1], "r");
+  if( !file ) {
+    fprintf( stderr, "La ruta no existe. ERROR\n" );
+    return;
+  }
+
+  aut = AFNDTransforma( file );
+  AFNDImprime( stdout, aut );
+  AFNDADot( aut );
+
   return;
-
-
-
-
-
-
-
 }
