@@ -34,11 +34,12 @@ int ne_getNestados( const nuevoestado *ne );
 nuevoestado* ne_setNombre( nuevoestado *ne, char *nombre );
 nuevoestado* ne_anadirEstado( nuevoestado *ne, char *estado );
 char *ne_procesaNombre( nuevoestado *ne );
+int ne_cmp( nuevoestado *ne1, nuevoestado *ne2 );
 void copy_nuevoestado( nuevoestado *n1, nuevoestado *n2 );
 void print_nuevoestado( nuevoestado *ne );
-
 char* NombreEstado(int numero);
 int NumeroEstado(char* nombre);
+
 // FUNCIONES AUTOMATA INTERMEDIO
 auti *auti_ini();
 void auti_anadirEstado( auti *aut, nuevoestado *ne );

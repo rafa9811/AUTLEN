@@ -288,10 +288,7 @@ while(ntransactuales != 0){
 
                   print_transicion(transaux[ntransaux]);
                   ntransaux++;
-
-
                   //printf("Hemos añadido a estados proximos el %d\n", j);
-
                }
             }
          }
@@ -336,11 +333,11 @@ while(ntransactuales != 0){
   fflush(stdout);
 
 
-    if(memcmp(transproximasantiguas, transproximas, ntransproximasantiguas * sizeof(transicion*))==0){
-      printf("Hemos terminado");
-      return;
-    }
-  
+  /*if(memcmp(transproximasantiguas, transproximas, ntransproximasantiguas * sizeof(transicion*))==0){
+    printf("Hemos terminado");
+    return;
+  }*/
+
   memcpy(transproximasantiguas, transproximas, ntransproximas * sizeof(transicion*));
   ntransproximasantiguas = ntransproximas;
 

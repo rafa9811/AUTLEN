@@ -221,6 +221,16 @@ int ne_getTipo( const nuevoestado *ne ) {
     return ne->tipo;
 }
 
+int ne_cmp( nuevoestado *ne1, nuevoestado *ne2 ) {
+  if( !ne1 || !ne2 ) {
+    fprintf( stderr, "Alguno de los estados a comparar es NULL\n" );
+    return -1;
+  }
+  // Dos estados serán iguales si poseen los mismos estados internos.
+  if( strcmp(ne_procesaNombre(ne1), ne_procesaNombre(ne2)) == 0 ) return 0;
+  else return 1;
+}
+
 char *ne_procesaNombre( nuevoestado *ne ) {
     int *final = NULL;
     char *ids = NULL;
@@ -336,7 +346,11 @@ auti *auti_ini() {
 }
 
 void auti_iniAlfabeto(auti *a ,int nalfabeto) {
-  for( int i = 0; i<nalfabeto; i++){
+  if( !a ) {
+    fprintf( stderr, "El autómata es NULL\n" );
+    return;
+  }
+  for( int i = 0; i<nalfabeto; i++) {
     a->simbolos[i] = malloc(TAM * sizeof(char));
   }
   return;
@@ -344,6 +358,12 @@ void auti_iniAlfabeto(auti *a ,int nalfabeto) {
 
 void auti_anadirEstado( auti *aut, nuevoestado *ne ) {
     if( !aut || !ne ) return;
+    for( int w = 0; w < auti_getNestados(aut); w++ ) {
+      if( ne_cmp(ne, auti_getEstados(aut)[w]) == 0 ) {
+        fprintf( stderr, "El estado que intenta añadir ya está en el autómata\n" );
+        return;
+      }
+    }
     aut->estados[ aut->nestados ] = ne;
     aut->nestados++;
     return;
