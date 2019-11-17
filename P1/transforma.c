@@ -1,3 +1,18 @@
+/*******************************************************************************
+** AUTÓMATAS Y LENGUAJES - PRÁCTICA 1
+** transforma.c
+**
+** Fichero que contiene la implementación de las funciones de transformación:
+estructura intermedia - estructura de api.
+** Contiene el algoritmo principal mediante el cual se transforma el autómata.
+**
+** Autores:
+** - Carlos Molinero Alvarado - carlos.molineroa@estudiante.uam.es
+** - Rafael Hidalgo Alejo - rafael.hidalgoa@estudiante.uam.es
+**
+** Última modificación: 17 de noviembre de 2019.
+*******************************************************************************/
+
 #include "transforma.h"
 
 AFND *transforma_estructura( auti *a ) {
@@ -87,137 +102,137 @@ AFND *AFNDTransforma( FILE *file ) {
 
   transproximasantiguas = malloc( 50 * sizeof(transicion*) );
 
-  for(int i=0; i<50; i++){
+  for( int i=0; i<50; i++ ) {
     transproximasantiguas[i]=t_ini();
   }
 
   transaux = malloc( 50 * sizeof(transicion*) );
 
-  nestados = getc(file)-'0';
+  nestados = getc( file ) - '0';
   //Para avanzar el espacio
-  getc(file);
-  estadoinicial = getc(file)-'0';
+  getc( file );
+  estadoinicial = getc( file ) - '0';
   //Para avanzar el espacio
-  getc(file);
+  getc( file );
 
   //Reservamos memoria para los estados finales;
-  estadosfinales = calloc(nestados, sizeof(int));
+  estadosfinales = calloc( nestados, sizeof(int) );
 
-  for(int i = 0; i<nestados; i++){
-    estadosfinales[i] = getc(file)-'0';
+  for( int i = 0; i<nestados; i++ ) {
+    estadosfinales[i] = getc( file ) - '0';
   }
-  getc(file);
+  getc( file );
   //Reservamos memoria para los estados actuales;
 
-  estadosactuales = calloc(nestados, sizeof(int));
-  estadosproximos = calloc(nestados, sizeof(int));
-  estadosactualeslambda = calloc(nestados, sizeof(int));
+  estadosactuales = calloc( nestados, sizeof(int) );
+  estadosproximos = calloc( nestados, sizeof(int) );
+  estadosactualeslambda = calloc( nestados, sizeof(int) );
 
   int nestadosactuales = 0;
   int estadoactual = 0;
   //Leemos el cardinal del alfabeto
   auti *autointer;
   autointer = auti_ini();
-  nalfabeto = getc(file)-'0';
-  auti_iniAlfabeto(autointer, nalfabeto);
-  getc(file);
-  for(int i = 0; i<nalfabeto; i++){
-    simbolo[0] = getc(file);
-    printf("%c", simbolo[0]);
+  nalfabeto = getc( file ) - '0';
+  auti_iniAlfabeto( autointer, nalfabeto );
+  getc( file );
+  for( int i = 0; i<nalfabeto; i++ ) {
+    simbolo[0] = getc( file );
+    printf( "%c", simbolo[0] );
     simbolo[1] = '\0';
-    auti_anadirSimbolo(autointer, simbolo);
+    auti_anadirSimbolo( autointer, simbolo );
   }
-  getc(file);
+  getc( file );
   //Reservamos memoria para la matriz de estados, inicializando a 0;
-  estados = calloc(nestados, sizeof(char**));
-  for(int i = 0; i<nestados; i++){
-    estados[i] = calloc(nestados, sizeof(char*));
-    for(int j = 0; j<nestados; j++){
-      estados[i][j] = calloc(nalfabeto, sizeof(char));
+  estados = calloc( nestados, sizeof(char**) );
+  for( int i = 0; i < nestados; i++ ) {
+    estados[i] = calloc( nestados, sizeof(char*) );
+    for( int j = 0; j < nestados; j++ ) {
+      estados[i][j] = calloc( nalfabeto, sizeof(char) );
     }
   }
   //Como lo hemos hecho es leer del nalfabeto hasta que nos encontramos con un asterisco, que significa que no hay más.
   //Aquí leemos la matriz de estados y transiciones.
-  for(int i = 0; i<nestados; i++){
-    for(int j = 0; j<nestados; j++){
-      for(int k = 0; k<nalfabeto+1; k++){
-        char c = getc(file);
-        if(c=='*'){
+  for( int i = 0; i<nestados; i++ ) {
+    for( int j = 0; j<nestados; j++ ) {
+      for( int k = 0; k<nalfabeto+1; k++ ) {
+        char c = getc( file );
+        if( c == '*' ) {
           break;
         }
         estados[i][j][k] = c;
-        printf("%d, %d,%d, %c\n", i , j, k, estados[i][j][k]);
+        printf( "%d, %d,%d, %c\n", i , j, k, estados[i][j][k] );
       }
     }
   }
 
-  fclose(file);
+  fclose( file );
   //Creamos nuestra estructura intermedia.
 
   transicion *transini;
   transini = t_ini();
   nuevoestado *einicial, *evacio;
-  einicial = ne_ini(INICIAL);
-  evacio = ne_ini(UNDEFINED);
-  ne_setNombre(evacio, "principio");
-  ne_anadirEstado(einicial, NombreEstado(estadoinicial));
-  ne_setNombre(einicial, NombreEstado(estadoinicial));
-  transini = t_set( transini, evacio, einicial, "-");
-  print_nuevoestado(t_getEfin(transini));
-  transactuales[ntransactuales]=transini;
+  einicial = ne_ini( INICIAL );
+  evacio = ne_ini( UNDEFINED );
+  ne_setNombre( evacio, "principio" );
+  ne_anadirEstado( einicial, NombreEstado(estadoinicial) );
+  ne_setNombre( einicial, NombreEstado(estadoinicial) );
+  transini = t_set( transini, evacio, einicial, "-" );
+  print_nuevoestado( t_getEfin(transini) );
+  transactuales[ntransactuales] = transini;
   ntransactuales++;
   trans = t_ini();
-  eaux1 = ne_ini(UNDEFINED);
-  eaux2 = ne_ini(UNDEFINED);
+  eaux1 = ne_ini( UNDEFINED );
+  eaux2 = ne_ini( UNDEFINED );
   //Pasamos de las transiciones actuales a estados actuales para encontrar los lambda.
-while(ntransactuales != 0){
+while( ntransactuales != 0 ) {
 
   flagtransitar = 0;
-  for(int i=0; i<ntransactuales; i++){
+  for( int i=0; i<ntransactuales; i++ ) {
     ntransproximas = 0;
-    printf("Tratamos para lambda la siguiente transición:\n");
-    print_transicion(transactuales[i]);
-    printf("\n\n\n");
+    printf( "Tratamos para lambda la siguiente transición:\n" );
+    print_transicion( transactuales[i] );
+    printf( "\n\n\n" );
     //Ponemos a cero todos los estados actuales para esta transición.
-    for(int m=0; m<nestados; m++){
-      estadosactuales[m]=0;
+    for( int m=0; m<nestados; m++ ) {
+      estadosactuales[m] = 0;
     }
-    for(int n = 0; n< ne_getNestados(t_getEfin(transactuales[i])); n++){
+    for( int n = 0; n < ne_getNestados(t_getEfin(transactuales[i])); n++ ) {
       ne =  NumeroEstado(ne_getEstados(t_getEfin(transactuales[i]))[n]);
       printf("Añadimos a estados actuales antes de ver lambda: %d\n", ne);
-      estadosactuales[ne]=1;
+      estadosactuales[ne] = 1;
     }
 
 
-    memcpy(estadosactualeslambda, estadosactuales, nestados * sizeof(int));
+    memcpy( estadosactualeslambda, estadosactuales, nestados * sizeof(int) );
 
   //Ahora hacemos un dowhile porque en el primero si son iguales.
   //A partir de una transición, queremos ver a cuántas podemos llegar con lambda, por eso lo hacemos de uno en uno.
     do
     {
-      memcpy(estadosactuales, estadosactualeslambda, nestados * sizeof(int));
-      for(int n=0; n<nestados; n++) {
-        if(estadosactuales[n]==1) {
+      memcpy( estadosactuales, estadosactualeslambda, nestados * sizeof(int) );
+      for( int n = 0; n < nestados; n++ ) {
+        if( estadosactuales[n]==1 ) {
           printf("En estado actual para ver lambdas %d:\n", n);
-          for(int j=0; j<nestados; j++) {
-            for(int k=0; k<nalfabeto; k++) {
-              if(estados[n][j][k]=='|') {
-                printf("Hemos encontrado lambda %d\n", j);
-                  estadosactualeslambda[j]=1;
+          for( int j = 0; j < nestados; j++ ) {
+            for(int k = 0; k < nalfabeto; k++ ) {
+              if( estados[n][j][k]=='|' ) {
+                printf( "Hemos encontrado lambda %d\n", j );
+                  estadosactualeslambda[j] = 1;
               }
             }
           }
         }
       }
 
-    printf("He salido\n");
-    } while(memcmp(estadosactualeslambda, estadosactuales, nestados * sizeof(int)) != 0);
+    printf( "He salido\n" );
+    } while( memcmp( estadosactualeslambda, estadosactuales, nestados * sizeof(int) ) != 0 );
     //Ahora sabemos que todos los estados actuales tienen que ir en uno solo, es decir, actualizar nuestra transición y su nombre.
     nuevoestado *e;
-    e = ne_ini(NORMAL);
-    for(int m = 0; m<nestados; m++){
-      if(estadosactuales[m]==1){
-        e = ne_anadirEstado(e, NombreEstado(m));
+    e = ne_ini( NORMAL );
+    for( int m = 0; m<nestados; m++ ) {
+      if( estadosactuales[m] == 1 ) {
+        e = ne_anadirEstado( e, NombreEstado(m) );
         if( estadosfinales[m] == 1 ) ne_setTipo( e, FINAL );
         if( estadoinicial == m ) ne_setTipo( e, INICIAL );
         if( estadoinicial == m && estadosfinales[m]==1 ) ne_setTipo( e, INICIAL_Y_FINAL );
@@ -237,54 +252,52 @@ while(ntransactuales != 0){
   }
 
   //Miramos si realmente hemos añadido estados:
-  if(flagtransitar != 1){
-    print_auti(autointer);
-    printf("\nHemos terminado!!!\n\n");
+  if( flagtransitar != 1 ) {
+    print_auti( autointer );
+    printf( "\nHemos terminado!!!\n\n" );
     aut = transforma_estructura( autointer );
     return aut;
   }
   //Ahora que ya tenemos nuestras transiciones almacenadas, tenemos que coger estas actuales que son definitivas
   //y ver hacia dónde nos llevan.
   ntransproximas = 0;
-  for(int i=0; i<ntransactuales; i++){
+  for( int i=0; i<ntransactuales; i++ ) {
     int ntrepite = 0;
-    for(int m=0; m<nestados; m++){
+    for( int m=0; m<nestados; m++ ) {
       estadosactuales[m]=0;
     }
     //Añadimos los estados de los que se compone este nuevo estado para ver en la matriz
     //hacia dónde transiciona.
-    for(int n = 0; n< ne_getNestados(t_getEfin(transactuales[i])); n++){
-      ne =  NumeroEstado(ne_getEstados(t_getEfin(transactuales[i]))[n]);
-      printf("\n\n\n");
-      printf("Añadimos a estados actuales tras ver lambda: %d\n", ne);
-      estadosactuales[ne]=1;
+    for( int n = 0; n < ne_getNestados( t_getEfin(transactuales[i])); n++ ) {
+      ne =  NumeroEstado( ne_getEstados( t_getEfin(transactuales[i]) )[n] );
+      printf( "\n\n\n" );
+      printf( "Añadimos a estados actuales tras ver lambda: %d\n", ne );
+      estadosactuales[ne] = 1;
     }
 
-    for(int j=0; j<nestados; j++){
+    for( int j=0; j<nestados; j++ ) {
 
-      if(estadosactuales[j]==1){
+      if( estadosactuales[j]==1 ) {
          printf("En estado actual %d:\n", j);
 
-         for(int k=0; k<nestados; k++){
+         for( int k=0; k<nestados; k++ ) {
 
-            for(int z=0; z<nalfabeto; z++){
-                fflush(stdout);
-               if(estados[j][k][z]!='|' && estados[j][k][z]!='-' && estados[j][k][z]!=0 ){
+            for( int z=0; z<nalfabeto; z++ ) {
+
+               if( estados[j][k][z] != '|' && estados[j][k][z] != '-' && estados[j][k][z] != 0 ) {
                   //Nos creamos ahora una nueva transicion
-                  ne_setNombre(eaux1, NombreEstado(k));
-                  ne_anadirEstado(eaux1, NombreEstado(k));
-                  //print_nuevoestado(eaux1);
-                  //print_nuevoestado(eaux2);
-                  printf("%c, %d, %d, %d\n", estados[j][k][z], j, k, z);
+                  ne_setNombre( eaux1, NombreEstado(k) );
+                  ne_anadirEstado( eaux1, NombreEstado(k) );
+                  printf( "%c, %d, %d, %d\n", estados[j][k][z], j, k, z );
 
-                  simbolo[0]=estados[j][k][z];
-                  simbolo[1]='\0';
-                  t_set(trans, t_getEfin(transactuales[i]), eaux1, simbolo);
+                  simbolo[0] = estados[j][k][z];
+                  simbolo[1] = '\0';
+                  t_set( trans, t_getEfin(transactuales[i]), eaux1, simbolo );
 
-                  transaux[ntransaux]=t_ini();
-                  copy_transicion(transaux[ntransaux], trans);
+                  transaux[ntransaux] = t_ini();
+                  copy_transicion( transaux[ntransaux], trans );
 
-                  print_transicion(transaux[ntransaux]);
+                  print_transicion( transaux[ntransaux] );
                   ntransaux++;
                   //printf("Hemos añadido a estados proximos el %d\n", j);
                }
@@ -294,32 +307,32 @@ while(ntransactuales != 0){
    }
    transicion **trepite;
    ntrepite = 0;
-   trepite = malloc(50*sizeof(transicion*));
-   for(int h = 0; h<nalfabeto; h++){
-     eaux2 = ne_ini(UNDEFINED);
+   trepite = malloc( 50 * sizeof(transicion*) );
+   for( int h = 0; h<nalfabeto; h++ ) {
+     eaux2 = ne_ini( UNDEFINED );
 
-     for(int l=0; l<ntransaux; l++){
-       if(strcmp(t_getSimbolo(transaux[l]), auti_getSimbolos(autointer)[h]) == 0){
+     for( int l=0; l<ntransaux; l++ ){
+       if( strcmp( t_getSimbolo(transaux[l]), auti_getSimbolos(autointer)[h] ) == 0 ) {
          trepite[ntrepite]=t_ini();
-         copy_transicion(trepite[ntrepite], transaux[l]);
+         copy_transicion( trepite[ntrepite], transaux[l] );
 
          ntrepite++;
        }
      }
-     if(ntrepite!=0){
+     if( ntrepite!=0 ) {
 
-        simbolo[0] = auti_getSimbolos(autointer)[h][0];
-        printf("Este es el símbolo %c, y ntrepite %d\n", simbolo[0], ntrepite);
+        simbolo[0] = auti_getSimbolos( autointer )[h][0];
+        printf( "Este es el símbolo %c, y ntrepite %d\n", simbolo[0], ntrepite );
         simbolo[1] = '\0';
-        t_set(trans, t_getEini(trepite[0]), NULL, simbolo);
+        t_set( trans, t_getEini(trepite[0]), NULL, simbolo );
         for(int p = 0; p<ntrepite; p++){
-          eaux2 = ne_anadirEstado(eaux2, ne_getNombre(t_getEfin(trepite[p])));
+          eaux2 = ne_anadirEstado( eaux2, ne_getNombre(t_getEfin(trepite[p])) );
         }
-        ne_setNombre(eaux2, ne_procesaNombre(eaux2));
-        t_set_efin(trans, eaux2);
+        ne_setNombre( eaux2, ne_procesaNombre(eaux2) );
+        t_set_efin( trans, eaux2 );
         print_transicion(trans);
         transproximas[ntransproximas] = t_ini();
-        copy_transicion(transproximas[ntransproximas], trans);
+        copy_transicion( transproximas[ntransproximas], trans );
         ntransproximas++;
         ntrepite = 0;
 
@@ -335,7 +348,7 @@ while(ntransactuales != 0){
 }
 
 
-void main(int argc, char**argv) {
+void main( int argc, char**argv ) {
   if( argc != 2 ) {
     fprintf( stderr, "MODO DE EJECUCION: ./transforma path_automata.txt\n" );
     return;
@@ -344,7 +357,7 @@ void main(int argc, char**argv) {
   FILE *file = NULL;
 
   //Leemos nuestro autómata de fichero:
-  file = fopen(argv[1], "r");
+  file = fopen( argv[1], "r" );
   if( !file ) {
     fprintf( stderr, "La ruta no existe. ERROR\n" );
     return;

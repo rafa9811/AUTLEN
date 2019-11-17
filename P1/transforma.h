@@ -1,3 +1,18 @@
+/*******************************************************************************
+** AUTÓMATAS Y LENGUAJES - PRÁCTICA 1
+** transforma.h
+**
+** Fichero que contiene la declaración de las funciones de transformación:
+estructura intermedia - estructura de api.
+**
+** Autores:
+** - Carlos Molinero Alvarado - carlos.molineroa@estudiante.uam.es
+** - Rafael Hidalgo Alejo - rafael.hidalgoa@estudiante.uam.es
+**
+** Última modificación: 17 de noviembre de 2019.
+*******************************************************************************/
+
+//Librerías
 #include <stdio.h>
 #include <stdlib.h>
 #include "afnd.h"

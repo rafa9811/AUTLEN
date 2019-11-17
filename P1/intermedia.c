@@ -15,9 +15,9 @@
 #include "intermedia.h"
 
 struct _transicion {
-    nuevoestado *eini;
-    nuevoestado *efin;
-    char *simbolo;
+    nuevoestado *eini; // Estado inicial de la transicion.
+    nuevoestado *efin; // Estado final de la transicion.
+    char *simbolo; // Simbolo mediante el cual se transita.
 };
 
 struct _nuevoestado {
@@ -478,62 +478,3 @@ void print_auti( auti *a ) {
     for( int i = 0; i < a->ntransiciones; i++) print_transicion( a->transiciones[i] );
     return;
 }
-
-
-
-/*
-int main(int argc, char **argv) {
-    transicion *t;
-    transicion *t2;
-    t = t_ini();
-    t2 = t_ini();
-    t_set(t, "q0", "q1", "a");
-    printf("TRANSICION...\n");
-    print_transicion(t);
-    printf("%s, %s, %s\n", t_getEini(t), t_getEfin(t), t_getSimbolo(t));
-    copy_transicion(t2, t);
-    print_transicion(t2);
-
-    nuevoestado *ne;
-    nuevoestado *ne2;
-    ne = ne_ini(0);
-    ne2 = ne_ini(1);
-    ne_setNombre(ne, "q0q1q2");
-    ne_anadirEstado(ne, "q0");
-    ne_anadirEstado(ne, "q20");
-    ne_anadirEstado(ne, "q50");
-    ne_anadirEstado(ne, "q1");
-    ne_anadirEstado(ne, "q1");
-    ne_anadirEstado(ne, "q2");
-    ne_setNombre(ne, ne_procesaNombre(ne));
-    printf("\nNUEVO ESTADO...\n");
-    print_nuevoestado(ne);
-    printf("Nombre: %s, se compone de los estados: ", ne_getNombre(ne));
-    char **estados;
-    estados = ne_getEstados(ne);
-    for( int i = 0; i<ne->nestados; i++ ) printf("%s ", estados[i]);
-    printf("\nNúmero de estados: %d\n",  ne_getNestados(ne));
-    copy_nuevoestado(ne2, ne);
-    print_nuevoestado(ne2);
-
-
-    printf("\nAUTOMATA INTERMEDIO...\n");
-
-    auti *a;
-    a = auti_ini();
-    auti_anadirEstado(a, ne);
-    auti_anadirEstado(a, ne2);
-    printf("Número de estados: %d\n", a->nestados);
-    auti_anadirTransicion(a, t);
-    auti_anadirTransicion(a, t2);
-    printf("Número de transiciones: %d\n", a->ntransiciones);
-    transicion **ts;
-    ts = auti_getTransiciones(a);
-    nuevoestado **nes;
-    nes = auti_getEstados(a);
-    for( int i = 0; i < a->ntransiciones; i++ ) print_transicion(ts[i]);
-    for( int i = 0; i < a->nestados; i++ ) print_nuevoestado(nes[i]);
-    print_auti(a);
-    return 0;
-}
-*/
