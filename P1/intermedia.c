@@ -1,5 +1,18 @@
+/*******************************************************************************
+** AUTÓMATAS Y LENGUAJES - PRÁCTICA 1
+** intermdia.c
+**
+** Fichero que contiene la implementación de las funciones de la estructura
+** intermedia.
+**
+** Autores:
+** - Carlos Molinero Alvarado - carlos.molineroa@estudiante.uam.es
+** - Rafael Hidalgo Alejo - rafael.hidalgoa@estudiante.uam.es
+**
+** Última modificación: 17 de noviembre de 2019.
+*******************************************************************************/
+
 #include "intermedia.h"
-#define TAM 64
 
 struct _transicion {
     nuevoestado *eini;
