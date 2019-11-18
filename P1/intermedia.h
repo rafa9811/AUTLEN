@@ -288,10 +288,9 @@ Argumentos de entrada:
    - estado: string que contiene el nombre del estado que debe ser añadido al
    nuevoestado.
 Retorno:
-   - nuevoestado: nuevoestado modificado.
-   - NULL, en caso de error.
+   - Ninguno.
 **/
-nuevoestado *ne_anadirEstado( nuevoestado *ne, char *estado );
+void ne_anadirEstado( nuevoestado *ne, char *estado );
 
 /**
 ne_setTipo
