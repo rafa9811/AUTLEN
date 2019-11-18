@@ -86,6 +86,8 @@ AFND *AFNDTransforma( FILE *file ) {
   int* estadosfinales;
   int ne;
   int flagtransitar;
+  int flaginicial;
+  int flagfinal;
   transicion *trans;
   nuevoestado *eaux1, *eaux2;
   char simbolo[2];
@@ -251,14 +253,18 @@ while( ntransactuales != 0 ) {
     /*Inicializamos nuestro estado.*/
     e = ne_ini( NORMAL );
     /*Añadimos cada uno de ellos y su nombre, también añadiendo su tipo correspondiente.*/
+    flaginicial=0;
+    flagfinal=0;
     for( m = 0; m<nestados; m++ ) {
       if( estadosactuales[m] == 1 ) {
         e = ne_anadirEstado( e, NombreEstado(m) );
-        if( estadosfinales[m] == 1 ) ne_setTipo( e, FINAL );
-        if( estadoinicial == m ) ne_setTipo( e, INICIAL );
-        if( estadoinicial == m && estadosfinales[m]==1 ) ne_setTipo( e, INICIAL_Y_FINAL );
+        if( estadosfinales[m] == 1 ) flagfinal=1;
+        if( estadoinicial == m ) flaginicial=1;
       }
     }
+    if(flaginicial==1 && flagfinal==1) ne_setTipo(e, INICIAL_Y_FINAL);
+    else if(flagfinal==1) ne_setTipo(e, FINAL);
+    else if(flaginicial==1) ne_setTipo(e,INICIAL);
     /*Finalmente creamos el nombre con la unión de todos.*/
     ne_setNombre(e, ne_procesaNombre(e));
 
@@ -285,6 +291,27 @@ while( ntransactuales != 0 ) {
     print_auti( autointer );
     printf( "\nHemos terminado!!!\n\n" );
     aut = transforma_estructura( autointer );
+    /*Antes de salirnos, liberamos la memoria utilizada:*/
+    for(i=0;i<50;i++){
+      t_free(transactuales[i]);
+    }
+    print_transicion(transproximas[0]);
+    for(i=0;i<50;i++){
+      t_free(transproximas[i]);
+    }
+    for(i=0;i<50;i++){
+      t_free(trepite[i]);
+    }
+    for(i=0;i<50;i++){
+      t_free(transaux[i]);
+    }
+    ne_free(e);
+    ne_free(eaux1);
+    ne_free(eaux2);
+    ne_free(einicial);
+    ne_free(evacio);
+    t_free(transini);
+
     return aut;
   }
 
@@ -384,7 +411,11 @@ while( ntransactuales != 0 ) {
   /*Ahora, una vez que ya hemos transitado con los símbolos, hemos de seguir con la siguiente iteración
   del bucle inicial. Por tanto, copiamos las próximas a las actuales, y ya volvemos a ver si se puede
   en cada una de ellas transitar con lambdas y las almacenamos en nuestra estructura intermedia. */
-  memcpy(transactuales, transproximas, ntransproximas * sizeof(transicion*));
+  for(p=0; p<ntransproximas; p++){
+    transactuales[p]=t_ini();
+    copy_transicion(transactuales[p], transproximas[p]);
+  }
+
   ntransactuales = ntransproximas;
 
   }

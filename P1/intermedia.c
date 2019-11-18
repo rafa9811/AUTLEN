@@ -100,12 +100,11 @@ transicion* t_ini() {
 
 void t_free( transicion *t ) {
   if( !t ) {
-    fprintf( stderr, "La transición a liberar es NULL\n" );
     return;
   }
-  if( t_getEini(t) ) ne_free( t_getEini(t) );
-  if( t_getEfin(t) ) ne_free( t_getEfin(t) );
-  free( t_getSimbolo(t) );
+  if( t->eini ) ne_free( t->eini );
+  if( t->efin ) ne_free( t->efin );
+  free( t->simbolo );
   free( t );
   return;
 }
@@ -185,7 +184,6 @@ nuevoestado *ne_ini( int tipo ) {
 void ne_free( nuevoestado *ne ) {
   int i;
   if( !ne ) {
-    fprintf( stderr, "El nuevoestado a liberar es NULL\n" );
     return;
   }
   free( ne->nombre );
