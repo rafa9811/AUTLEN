@@ -12,7 +12,7 @@ estructura intermedia - estructura de api.
 ** Última modificación: 17 de noviembre de 2019.
 *******************************************************************************/
 
-//Librerías
+/*Librerías*/
 #include <stdio.h>
 #include <stdlib.h>
 #include "afnd.h"

@@ -12,12 +12,12 @@
 ** Última modificación: 17 de noviembre de 2019.
 *******************************************************************************/
 
-// Librerías.
+/* Librerías.*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-// Macros.
+/* Macros.*/
 #define TAM 64
 
 #define INICIAL	0
