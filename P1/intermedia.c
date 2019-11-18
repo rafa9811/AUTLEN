@@ -397,20 +397,23 @@ void auti_iniAlfabeto(auti *a ,int nalfabeto) {
 int auti_anadirEstado( auti *aut, nuevoestado *ne ) {
   int w;
     if( !aut || !ne ) return -2;
+    /* Debemos comprobar que el estado a añadir no esté en el auti */
     for( w = 0; w < auti_getNestados(aut); w++ ) {
       if( ne_cmp(ne, auti_getEstados(aut)[w]) == 0 ) {
         fprintf( stderr, "El estado que intenta añadir ya está en el autómata\n" );
         return -1;
       }
     }
-    aut->estados[ aut->nestados ] = ne;
+    aut->estados[ aut->nestados ] = ne_ini( UNDEFINED );
+    copy_nuevoestado( aut->estados[ aut->nestados ], ne );
     aut->nestados++;
     return 0;
 }
 
 void auti_anadirTransicion( auti *aut, transicion *t ) {
     if ( !aut || !t ) return;
-    aut->transiciones[ aut->ntransiciones ] = t;
+    aut->transiciones[ aut->ntransiciones ] = t_ini();
+    copy_transicion( aut->transiciones[ aut->ntransiciones ], t );
     aut->ntransiciones++;
     return;
 }
@@ -482,6 +485,31 @@ int auti_getNtransiciones( auti *aut ) {
 int auti_getNsimbolos( auti *aut ) {
   if( !aut ) return -1;
   return aut->nsimbolos;
+}
+
+void auti_free( auti *aut ) {
+  int i;
+  if( !aut ) {
+    fprintf( stderr, "El automata intermedio a liberar es NULL\n" );
+    return;
+  }
+  for( i = 0; i < auti_getNsimbolos(aut); i++ ) {
+    free( aut->simbolos[i] );
+  }
+  free( aut->simbolos );
+
+  for( i = 0; i < auti_getNestados(aut); i++ ) {
+    ne_free( aut->estados[i] );
+  }
+  free( aut->estados );
+
+  for( i = 0; i < auti_getNtransiciones(aut); i++ ) {
+    t_free( aut->transiciones[i] );
+  }
+  free( aut->transiciones );
+
+  free(aut);
+  return;
 }
 
 void print_auti( auti *a ) {

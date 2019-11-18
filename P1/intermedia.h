@@ -547,6 +547,18 @@ Retorno:
 int auti_getNsimbolos( auti *aut );
 
 /**
+auti_free
+
+Función que libera la memoria utlizada por un autómata intermedio.
+
+Argumentos de entrada:
+  - aut: autómata a liberar.
+Retorno:
+  - Ninguno.
+**/
+void auti_free( auti *aut );
+
+/**
 print_auti
 
 Funcion auxiliar que imprime una estructura del tipo auti.

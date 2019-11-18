@@ -274,14 +274,14 @@ while( ntransactuales != 0 ) {
 
     /*Comprobamos que el estado que hemos querido añadir no estaba ya en nuestra lista, es decir, que es nuevo,
     y que por tanto aún no hemos acabado el algoritmo*/
-    if(auti_anadirEstado(autointer, e)==0){
+    if( auti_anadirEstado(autointer, e) == 0 ) {
       flagtransitar = 1;
     }
     /*Modificamos nuestra transición actual añadiendo el nuevo estado destino, y ya la añadimos al autómata.*/
-    t_set_efin(transactuales[i],e);
-    printf("Añadimos al autómata la transicion:\n");
-    print_transicion(transactuales[i]);
-    auti_anadirTransicion(autointer, transactuales[i]);
+    t_set_efin( transactuales[i], e );
+    fprintf( stdout, "Añadimos al autómata la transicion:\n" );
+    print_transicion( transactuales[i] );
+    auti_anadirTransicion( autointer, transactuales[i] );
     /*Una vez que lo hemos hecho, podemos seguir con la próxima transición viendo si transita con lambda y la almacenamos..*/
   }
 
@@ -292,25 +292,25 @@ while( ntransactuales != 0 ) {
     printf( "\nHemos terminado!!!\n\n" );
     aut = transforma_estructura( autointer );
     /*Antes de salirnos, liberamos la memoria utilizada:*/
-    for(i=0;i<50;i++){
-      t_free(transactuales[i]);
+    for( i = 0; i < 50; i++ ) {
+      t_free( transactuales[i] );
     }
-    print_transicion(transproximas[0]);
-    for(i=0;i<50;i++){
-      t_free(transproximas[i]);
+    for( i = 0; i < 50; i++ ) {
+      t_free( transproximas[i] );
     }
-    for(i=0;i<50;i++){
-      t_free(trepite[i]);
+    for( i = 0; i < 50; i++ ) {
+      t_free( trepite[i] );
     }
-    for(i=0;i<50;i++){
-      t_free(transaux[i]);
+    for( i = 0; i < 50; i++ ) {
+      t_free( transaux[i] );
     }
-    ne_free(e);
-    ne_free(eaux1);
-    ne_free(eaux2);
-    ne_free(einicial);
-    ne_free(evacio);
-    t_free(transini);
+    ne_free( e );
+    ne_free( eaux1 );
+    ne_free( eaux2 );
+    ne_free( einicial );
+    ne_free( evacio );
+    t_free( transini );
+    auti_free( autointer );
 
     return aut;
   }
