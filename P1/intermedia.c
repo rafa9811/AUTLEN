@@ -38,7 +38,7 @@ struct _auti {
 
 /* Funcion auxiliar de ordenación.*/
 void bubble_sort( int *lista ) {
-    int a, b, c;
+    int a = 0, b = 0, c = 0;
     int j = 0;
     int n = 0;
     if( !lista ) return;
@@ -165,18 +165,19 @@ void print_transicion( transicion *t ) {
 nuevoestado *ne_ini( int tipo ) {
     nuevoestado *ne;
     int i;
-    ne = malloc( sizeof(nuevoestado) );
-    ne->nombre = malloc( TAM * sizeof(char) );
-    ne->estados = malloc( 1024 * sizeof(char*) );
+    ne = calloc( 1, sizeof(nuevoestado) );
+    ne->nombre = calloc( TAM, sizeof(char) );
+    ne->estados = calloc( 1024,  sizeof(char*) );
     if( !(ne->estados) ) {
         fprintf(stderr, "Error iniciando estado\n");
         return NULL;
     }
     for( i = 0; i < 1024; i++ ) {
-        ne->estados[i] = malloc( TAM * sizeof(char) );
+        ne->estados[i] = calloc( TAM , sizeof(char) );
         if( !ne->estados[i] ) return NULL;
     }
     ne->tipo = tipo;
+    ne->nestados = 0;
 
     return ne;
 }
@@ -246,6 +247,7 @@ nuevoestado* ne_anadirEstado( nuevoestado *ne, char *estado ) {
     if( !estado || !ne ) return NULL;
     strcpy( ne->estados[ ne->nestados ], estado );
     ne->nestados++;
+    strcpy( ne->estados[ ne->nestados ], "" );
     return ne;
 }
 
@@ -264,8 +266,18 @@ int ne_cmp( nuevoestado *ne1, nuevoestado *ne2 ) {
     return -1;
   }
   /*Dos estados serán iguales si poseen los mismos estados internos.*/
-  if( strcmp(ne_procesaNombre(ne1), ne_procesaNombre(ne2)) == 0 ) return 0;
-  else return 1;
+  nombre1 = ne_procesaNombre(ne1);
+  nombre2 = ne_procesaNombre(ne2);
+  if( strcmp(nombre1, nombre2) == 0 ){
+    if(nombre1) free(nombre1);
+    if(nombre2) free(nombre2);
+    return 0;
+  }
+  else{
+    if(nombre1) free(nombre1);
+    if(nombre2) free(nombre2);
+    return 1;
+  }
 }
 
 char *ne_procesaNombre( nuevoestado *ne ) {
@@ -280,9 +292,9 @@ char *ne_procesaNombre( nuevoestado *ne ) {
     int i;
     int aux = 0;
 
-    final = malloc( 64 * sizeof(int) );
-    ids = malloc( 128 * sizeof(char) );
-    nombre = malloc( 64 * sizeof(char) );
+    final = calloc( 64, sizeof(int) );
+    ids = calloc( 128, sizeof(char) );
+    nombre = calloc( 64, sizeof(char) );
     if( !final || !ids ) return NULL;
     estados = ne_getEstados( ne );
     nestados = ne_getNestados( ne );
@@ -322,7 +334,10 @@ char *ne_procesaNombre( nuevoestado *ne ) {
         strcat( nombre, temp );
         aux++;
     }
-
+    free( ids );
+    free( final );
+    for(i = 0; i < 1024; i++) free( estados[i] );
+    free( estados );
     return nombre;
 
 }
