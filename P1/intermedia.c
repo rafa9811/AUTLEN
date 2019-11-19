@@ -85,8 +85,8 @@ char *NombreEstado( int numero ) {
 transicion* t_ini() {
     transicion *t;
     t = malloc( sizeof(transicion) );
-    t->eini = ne_ini(10);
-    t->efin = ne_ini(10);
+    t->eini = ne_ini( 10 );
+    t->efin = ne_ini( 10 );
     if( !t || !t->eini || !t->efin ) {
         fprintf( stderr, "Error iniciando transicion" );
         return NULL;
@@ -157,7 +157,12 @@ transicion* t_set_efin( transicion *t, nuevoestado *final ) {
 }
 
 void print_transicion( transicion *t ) {
-    printf("Estado inicial: %s, estado final: %s, con simbolo %s\n", ne_getNombre(t->eini), ne_getNombre(t->efin), t->simbolo);
+    char *nombre1, *nombre2;
+    nombre1 = ne_getNombre( t->eini );
+    nombre2 = ne_getNombre( t->efin );
+    printf("Estado inicial: %s, estado final: %s, con simbolo %s\n", nombre1, nombre2, t->simbolo);
+    free( nombre1 );
+    free( nombre2 );
     return;
 }
 
@@ -412,7 +417,7 @@ int auti_anadirEstado( auti *aut, nuevoestado *ne ) {
     if( !aut || !ne ) return -2;
     /* Debemos comprobar que el estado a añadir no esté en el auti */
     estados = auti_getEstados( aut );
-    for( w = 0; w < auti_getNestados(aut); w++ ) {
+    for( w = 0; w < auti_getNestados( aut ); w++ ) {
       if( ne_cmp( ne, estados[w] ) == 0 ) {
         fprintf( stderr, "El estado que intenta añadir ya está en el autómata\n" );
         return -1;
@@ -420,7 +425,7 @@ int auti_anadirEstado( auti *aut, nuevoestado *ne ) {
     }
     /*Liberamos memoria*/
     for( w = 0; w < auti_getNestados( aut ); w++ ) ne_free( estados[w] );
-    free(estados);
+    free( estados );
 
     /*Copiamos el estado*/
     aut->estados[ aut->nestados ] = ne_ini( UNDEFINED );
@@ -484,7 +489,7 @@ char** auti_getSimbolos( const auti *aut ) {
   for( i = 0; i < aut->nsimbolos; i++ ) {
       simbolos[i] = malloc( TAM * sizeof(char) );
       if( !simbolos[i] ) {
-        free(simbolos);
+        free( simbolos );
         return NULL;
       }
       strcpy( simbolos[i], aut->simbolos[i] );
