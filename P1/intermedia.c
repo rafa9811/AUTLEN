@@ -85,8 +85,8 @@ char *NombreEstado( int numero ) {
 transicion* t_ini() {
     transicion *t;
     t = malloc( sizeof(transicion) );
-    t->eini = ne_ini( 10 );
-    t->efin = ne_ini( 10 );
+    t->eini = ne_ini(10);
+    t->efin = ne_ini(10);
     if( !t || !t->eini || !t->efin ) {
         fprintf( stderr, "Error iniciando transicion" );
         return NULL;
@@ -157,12 +157,7 @@ transicion* t_set_efin( transicion *t, nuevoestado *final ) {
 }
 
 void print_transicion( transicion *t ) {
-    char *nombre1, *nombre2;
-    nombre1 = ne_getNombre( t->eini );
-    nombre2 = ne_getNombre( t->efin );
-    printf("Estado inicial: %s, estado final: %s, con simbolo %s\n", nombre1, nombre2, t->simbolo);
-    free( nombre1 );
-    free( nombre2 );
+    printf("Estado inicial: %s, estado final: %s, con simbolo %s\n", ne_getNombre(t->eini), ne_getNombre(t->efin), t->simbolo);
     return;
 }
 
@@ -221,7 +216,7 @@ char** ne_getEstados( const nuevoestado *ne ) {
     return estados;
 }
 
-nuevoestado *ne_setNombre( nuevoestado *ne, char *nombre ) {
+nuevoestado* ne_setNombre( nuevoestado *ne, char *nombre ) {
     if( !ne || !nombre ) return NULL;
     strcpy( ne->nombre, nombre );
     return ne;
@@ -240,11 +235,11 @@ nuevoestado *ne_setTipo( nuevoestado *ne, int tipo ) {
     return ne;
 }
 
-void ne_anadirEstado( nuevoestado *ne, char *estado ) {
-    if( !estado || !ne ) return;
-    strcpy( ne->estados[ ne->nestados ], estado );
+nuevoestado* ne_anadirEstado( nuevoestado *ne, char *estado ) {
+    if( !estado || !ne ) return NULL;
+    ne->estados[ ne->nestados ] = estado;
     ne->nestados++;
-    return;
+    return ne;
 }
 
 int ne_getNestados( const nuevoestado *ne ) {
@@ -256,39 +251,31 @@ int ne_getTipo( const nuevoestado *ne ) {
 }
 
 int ne_cmp( nuevoestado *ne1, nuevoestado *ne2 ) {
-  int comp;
-  char *nombre1, *nombre2;
-
   if( !ne1 || !ne2 ) {
     fprintf( stderr, "Alguno de los estados a comparar es NULL\n" );
     return -1;
   }
-  nombre1 = ne_procesaNombre( ne1 );
-  nombre2 = ne_procesaNombre( ne2 );
-
-  comp = strcmp( nombre1, nombre2 );
-
-  free( nombre1 );
-  free( nombre2 );
-
   /*Dos estados serán iguales si poseen los mismos estados internos.*/
-  if( comp == 0 ) return 0;
+  if( strcmp(ne_procesaNombre(ne1), ne_procesaNombre(ne2)) == 0 ) return 0;
   else return 1;
 }
 
 char *ne_procesaNombre( nuevoestado *ne ) {
     int *final;
-    char *ids, *nombre, *token, *temp;
+    char *ids;
+    char *nombre;
+    char *token;
     char **estados;
-    int nestados, i, j;
+    char temp[20];
+    int nestados;
+    int j = 0;
+    int i;
     int aux = 0;
 
-    final = malloc( TAM * sizeof(int) );
-    ids = malloc( (2*TAM) * sizeof(char) );
-    nombre = malloc( TAM * sizeof(char) );
-    temp = malloc( 20 * sizeof(char) );
-    if( !final || !ids || !nombre || !temp ) return NULL;
-
+    final = malloc( 64 * sizeof(int) );
+    ids = malloc( 128 * sizeof(char) );
+    nombre = malloc( 64 * sizeof(char) );
+    if( !final || !ids ) return NULL;
     estados = ne_getEstados( ne );
     nestados = ne_getNestados( ne );
 
@@ -308,11 +295,11 @@ char *ne_procesaNombre( nuevoestado *ne ) {
     ids[aux] = '\0';
     aux = 0;
 
-    token = strtok( ids, "#" );
+    token = strtok(ids, "#");
 
     while( token != NULL ) {
-        final[aux] = atoi( token );
-        token = strtok( NULL, "#" );
+        final[aux] = atoi(token);
+        token = strtok(NULL, "#");
         aux++;
     }
     aux++;
@@ -322,18 +309,14 @@ char *ne_procesaNombre( nuevoestado *ne ) {
     aux = 1;
 
     while( final[aux] != -1 ) {
-      strcat( nombre, "q" );
-      sprintf( temp, "%d", final[aux] );
-      strcat( nombre, temp );
-      aux++;
+        strcat( nombre, "q" );
+        sprintf( temp, "%d", final[aux] );
+        strcat( nombre, temp );
+        aux++;
     }
-    for( i = 0; i < 1024; i++ ) free( estados[i] );
-    free( estados );
-    free( ids );
-    free( temp );
-    free( final );
 
     return nombre;
+
 }
 
 void copy_nuevoestado( nuevoestado *n1, nuevoestado *n2 ) {
@@ -399,39 +382,31 @@ auti *auti_ini() {
     return aut;
 }
 
-void auti_iniAlfabeto( auti *a, int nalfabeto ) {
-    int i;
-    if( !a ) {
-      fprintf( stderr, "El autómata es NULL\n" );
-      return;
-    }
-    for( i = 0; i<nalfabeto; i++) {
-      a->simbolos[i] = malloc(TAM * sizeof(char));
-    }
+void auti_iniAlfabeto(auti *a ,int nalfabeto) {
+  int i;
+  if( !a ) {
+    fprintf( stderr, "El autómata es NULL\n" );
     return;
+  }
+  for( i = 0; i<nalfabeto; i++) {
+    a->simbolos[i] = malloc(TAM * sizeof(char));
+  }
+  return;
 }
 
 int auti_anadirEstado( auti *aut, nuevoestado *ne ) {
-    int w;
-    nuevoestado **estados;
+  int w;
     if( !aut || !ne ) return -2;
     /* Debemos comprobar que el estado a añadir no esté en el auti */
-    estados = auti_getEstados( aut );
-    for( w = 0; w < auti_getNestados( aut ); w++ ) {
-      if( ne_cmp( ne, estados[w] ) == 0 ) {
+    for( w = 0; w < auti_getNestados(aut); w++ ) {
+      if( ne_cmp(ne, auti_getEstados(aut)[w]) == 0 ) {
         fprintf( stderr, "El estado que intenta añadir ya está en el autómata\n" );
         return -1;
       }
     }
-    /*Liberamos memoria*/
-    for( w = 0; w < auti_getNestados( aut ); w++ ) ne_free( estados[w] );
-    free( estados );
-
-    /*Copiamos el estado*/
     aut->estados[ aut->nestados ] = ne_ini( UNDEFINED );
     copy_nuevoestado( aut->estados[ aut->nestados ], ne );
     aut->nestados++;
-
     return 0;
 }
 
@@ -489,7 +464,7 @@ char** auti_getSimbolos( const auti *aut ) {
   for( i = 0; i < aut->nsimbolos; i++ ) {
       simbolos[i] = malloc( TAM * sizeof(char) );
       if( !simbolos[i] ) {
-        free( simbolos );
+        free(simbolos);
         return NULL;
       }
       strcpy( simbolos[i], aut->simbolos[i] );
