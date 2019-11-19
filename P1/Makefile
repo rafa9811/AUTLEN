@@ -1,6 +1,6 @@
 ########################################################
 CC=gcc
-CFLAGS= -g -Wall -pedantic -ansi
+CFLAGS= -g -Wall -pedantic -ansi -std=c99
 EJS = transforma
 ########################################################
 OBJECTSP3_E1 = transforma.o intermedia.o afnd.o

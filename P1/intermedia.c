@@ -193,6 +193,13 @@ void ne_free( nuevoestado *ne ) {
   return;
 }
 
+void ne_arr_free( nuevoestado **ne, int len ){
+  for (int i = 0; i < len; i++) {
+    ne_free(ne[i]);
+  }
+  free(ne);
+}
+
 char* ne_getNombre( const nuevoestado *ne ) {
     char *nombre;
     if( !ne ) return NULL;
@@ -237,7 +244,7 @@ nuevoestado *ne_setTipo( nuevoestado *ne, int tipo ) {
 
 nuevoestado* ne_anadirEstado( nuevoestado *ne, char *estado ) {
     if( !estado || !ne ) return NULL;
-    ne->estados[ ne->nestados ] = estado;
+    strcpy( ne->estados[ ne->nestados ], estado );
     ne->nestados++;
     return ne;
 }
@@ -251,6 +258,7 @@ int ne_getTipo( const nuevoestado *ne ) {
 }
 
 int ne_cmp( nuevoestado *ne1, nuevoestado *ne2 ) {
+  char* nombre1, *nombre2;
   if( !ne1 || !ne2 ) {
     fprintf( stderr, "Alguno de los estados a comparar es NULL\n" );
     return -1;
@@ -398,12 +406,17 @@ int auti_anadirEstado( auti *aut, nuevoestado *ne ) {
   int w;
     if( !aut || !ne ) return -2;
     /* Debemos comprobar que el estado a añadir no esté en el auti */
+    nuevoestado **aux = auti_getEstados(aut);
     for( w = 0; w < auti_getNestados(aut); w++ ) {
-      if( ne_cmp(ne, auti_getEstados(aut)[w]) == 0 ) {
+
+      if( ne_cmp(ne, aux[w]) == 0 ) {
+        ne_arr_free(aux, auti_getNestados(aut));
         fprintf( stderr, "El estado que intenta añadir ya está en el autómata\n" );
         return -1;
       }
+
     }
+    ne_arr_free(aux, auti_getNestados(aut));
     aut->estados[ aut->nestados ] = ne_ini( UNDEFINED );
     copy_nuevoestado( aut->estados[ aut->nestados ], ne );
     aut->nestados++;

@@ -69,36 +69,19 @@ AFND *transforma_estructura( auti *a ) {
 AFND *AFNDTransforma( FILE *file ) {
 
   AFND *aut = NULL;
-  char ***estados;
-  int nestados;
-  int nalfabeto;
-  transicion **transactuales;
-  int ntransactuales = 0;
-  transicion **transproximas;
-  int ntransproximas = 0;
-  transicion **transaux;
-  int ntransaux = 0;
-  transicion **trepite;
-  int ntrepite;
-  int *estadosactuales;
-  int *estadosactualeslambda;
-  int estadoinicial;
-  int* estadosfinales;
-  int ne;
-  int flagtransitar;
-  int flaginicial;
-  int flagfinal;
-  transicion *trans;
-  nuevoestado *eaux1, *eaux2;
-  char simbolo[2];
-  char c;
-  auti *autointer;
-  transicion *transini;
-  nuevoestado *einicial, *evacio;
-  nuevoestado *e;
+  int nestados, nalfabeto, ntrepite, estadoinicial, ne, flagfinal, flaginicial, flagtransitar;
+  int ntransactuales = 0, ntransproximas = 0, ntransaux = 0;
   /*Contadores*/
   int i, m, j, k, z, n, p, h, l;
-
+  int *estadosactuales, *estadosactualeslambda, *estadosfinales;
+  char ***estados;
+  char simbolo[2];
+  char c;
+  char *nombre;
+  transicion **transproximas, **transaux, **trepite, **transactuales;
+  transicion *transini, *trans;
+  nuevoestado *eaux1, *eaux2, *einicial, *evacio, *e;
+  auti *autointer;
 
   if( !file ) {
     fprintf( stderr, "AFNDTransforma: no existe fichero\n" );
@@ -107,9 +90,7 @@ AFND *AFNDTransforma( FILE *file ) {
 
   /*Reservamos memoria para todos los punteros de transiciones y estructuras que vamos a utilizar*/
   transactuales = malloc( 50 * sizeof(transicion*) );
-
   transproximas = malloc( 50 * sizeof(transicion*) );
-
 
   autointer = auti_ini();
 
@@ -130,24 +111,21 @@ AFND *AFNDTransforma( FILE *file ) {
   /*Reservamos memoria para los estados finales*/
   estadosfinales = calloc( nestados, sizeof(int) );
 
-  for( i = 0; i<nestados; i++ ) {
+  for( i = 0; i < nestados; i++ ) {
     estadosfinales[i] = getc( file ) - '0';
   }
   getc( file );
+
   /*Reservamos memoria para los estados actuales*/
-
   estadosactuales = calloc( nestados, sizeof(int) );
-
   estadosactualeslambda = calloc( nestados, sizeof(int) );
 
 
   /*Leemos el cardinal del alfabeto*/
-
-
   nalfabeto = getc( file ) - '0';
   auti_iniAlfabeto( autointer, nalfabeto );
   getc( file );
-  for( i = 0; i<nalfabeto; i++ ) {
+  for( i = 0; i < nalfabeto; i++ ) {
     simbolo[0] = getc( file );
     printf( "%c", simbolo[0] );
     simbolo[1] = '\0';
@@ -186,8 +164,10 @@ AFND *AFNDTransforma( FILE *file ) {
   einicial = ne_ini( INICIAL );
   evacio = ne_ini( UNDEFINED );
   ne_setNombre( evacio, "principio" );
-  ne_anadirEstado( einicial, NombreEstado(estadoinicial) );
-  ne_setNombre( einicial, NombreEstado(estadoinicial) );
+  nombre = NombreEstado( estadoinicial );
+  ne_anadirEstado( einicial, nombre );
+  ne_setNombre( einicial, nombre );
+  free( nombre );
   transini = t_set( transini, evacio, einicial, "-" );
   print_nuevoestado( t_getEfin(transini) );
   transactuales[ntransactuales] = transini;
@@ -311,6 +291,10 @@ while( ntransactuales != 0 ) {
     ne_free( evacio );
     t_free( transini );
     auti_free( autointer );
+
+    free( estadosfinales );
+    free( estadosactuales );
+    free( estadosactualeslambda );
 
     return aut;
   }
@@ -442,6 +426,7 @@ int main( int argc, char**argv ) {
   aut = AFNDTransforma( file );
   AFNDImprime( stdout, aut );
   AFNDADot( aut );
+  AFNDElimina( aut );
 
   return 0;
 }
