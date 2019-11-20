@@ -157,7 +157,12 @@ transicion* t_set_efin( transicion *t, nuevoestado *final ) {
 }
 
 void print_transicion( transicion *t ) {
-    printf("Estado inicial: %s, estado final: %s, con simbolo %s\n", ne_getNombre(t->eini), ne_getNombre(t->efin), t->simbolo);
+    char *nombre1, *nombre2;
+    nombre1 = ne_getNombre( t->eini );
+    nombre2 = ne_getNombre( t->efin );
+    printf("Estado inicial: %s, estado final: %s, con simbolo %s\n", nombre1, nombre2, t->simbolo);
+    free( nombre1 );
+    free( nombre2 );
     return;
 }
 
