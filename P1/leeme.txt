@@ -1,0 +1,17 @@
+AUTÓMATAS Y LENGUAJE - práctica 1. 
+21 de noviembre de 2019.
+
+AUTORES:
+
+	- Carlos Molinero Alvarado. - carlos.molineroa@estudiante.uam.es
+	- Rafael Hidalgo Alejo. - rafael.hidalgoa@estudiante.uam.es
+
+
+COMPILACIÓN Y EJECUCIÓN:
+
+	Descrito en el archivo memoria.pdf. De forma resumida:
+	
+	1. make
+	2. ./transforma automatax.txt, donde x = 1, 2, 3 (dependiendo del ejemplo proporcionado 	que se quiera ejecutar).
+	3. make png (para visualizar el archivo .dot generado).
+	4. Posibilidad de ejecutar make clean, make clear.
