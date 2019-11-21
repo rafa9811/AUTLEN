@@ -18,6 +18,10 @@ estructura intermedia - estructura de api.
 #include "afnd.h"
 #include "intermedia.h"
 
+#define OK 0
+#define ERROR -1
+#define STDTAM 50
+
 /**
 transforma_estructura
 

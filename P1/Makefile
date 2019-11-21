@@ -24,8 +24,8 @@ clear:
 	rm -rf *.o
 
 clean:
-	rm -rf *.o $(EJS)
+	rm -rf *.o $(EJS) *.dot *.png
 
-run:
-	@echo ">>>>>>Running transforma"
-	./transforma
+png:
+	dot af11.dot -Tpng -o af11.png
+
