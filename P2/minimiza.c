@@ -89,6 +89,7 @@ void leerFichero(FILE* file){
     char c;
     char *nombre;
     char **mem;
+    char nestadoschar[5];
     transicion **transproximas, **transaux, **trepite, **transactuales;
     transicion *transini, *trans;
     nuevoestado *eaux1, *eaux2, *einicial, *evacio, *e, *aux;
@@ -113,9 +114,19 @@ void leerFichero(FILE* file){
     autointer = auti_ini();
 
     /*Leemos el fichero que recibimos para almacenar toda la información correspondiente*/
-    nestados = getc( file ) - '0';
-    /*Para avanzar el espacio*/
-    getc( file );
+    c = getc( file );
+    i = 0;
+    while(c!=' '){
+      nestadoschar[i] = c;
+      c = getc( file );
+      printf("%c, %d\n", nestadoschar[i],i);
+      i++;
+    }
+
+    nestadoschar[i]='\0';
+
+    nestados = atoi(nestadoschar);
+
     estadoinicial = getc( file ) - '0';
     /*Para avanzar el espacio*/
     getc( file );
@@ -744,6 +755,16 @@ int main( int argc, char**argv ) {
 	}
 
 	leerFichero(file);
+
+  printf("nestados: %d\n",nestados);
+  printf("estado inicial: %d\n",estadoinicial);
+  printf("estados finales:");
+  for(i = 0; i<nestados; i++){
+    printf("%d", estadosfinales[i]);
+  }
+  printf("\n");
+  printf("estados finales: %d", estadosfinales[i]);
+  fflush(stdout);
 	accesibles = eliminarInaccesibles();
 	for(i=0;i<nestados;i++){
 	  printf("%d\n", accesibles[i]);
