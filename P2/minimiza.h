@@ -13,4 +13,6 @@ void leerFichero(FILE * file);
 
 int* eliminarInaccesibles();
 
-int** distinguibles();
+int** verdistinguibles();
+
+AFND*transformafin(int **distinguibles, int *accesibles);
