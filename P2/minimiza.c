@@ -250,7 +250,7 @@ int** verdistinguibles(){
 	/*Ahora reservamos memoria*/
 	distinguibles = calloc(nestados, sizeof(int*));
 	for(i=0; i<nestados; i++){
-		distinguibles[i] = calloc(i, sizeof(int));
+		distinguibles[i] = calloc(nestados, sizeof(int));
 	}
 
 	listarecursiva = calloc(nestados, sizeof(listal*));
@@ -259,30 +259,42 @@ int** verdistinguibles(){
 	}
 
 	/*Lo primero que hemos de hacer es diferenciar los estados finales de los que no*/
-	for(i=1; i<nestados; i++){
+	for(i=0; i<nestados; i++){
+    if(estadosfinales[i]==1){
 
-		for(j=0; j<i; j++){
-			if((estadosfinales[j]==1 && estadosfinales[i]!=1) || (estadosfinales[j]!=1 && estadosfinales[i]==1)){
-				distinguibles[i][j]=1;
-				printf("%d-%d:%d\n", i, j, distinguibles[i][j]);
-			}
+      for(j=i+1; j < nestados; j++){
+        if(estadosfinales[j]!=1){
+          distinguibles[j][i]=1;
+          printf("%d-%d:%d\n", i, j, distinguibles[j][i]);
+        }
+      }
+  		for(j=0; j<i; j++){
+  			if(estadosfinales[j]!=1){
+  				distinguibles[i][j]=1;
+  				printf("%d-%d:%d\n", i, j, distinguibles[i][j]);
+  			}
 
 
-		}
+  		}
+    }
+
 	}
 	//Obtenemos todos los símbolos del alfabeto.
 	alfb = auti_getSimbolos( autointer );
 	transprimero = -1;
 	transsegundo = -1;
 	/*Ahora lo que tenemos que hacer es para cada par, vemos si para algún a van a parar a un par marcado.*/
-	for(i=1; i<nestados; i++){
+	for(i=0; i<nestados; i++){
 		for(j=0; j<i; j++){
+
 			/*Antes de nada comprobamos que no lo hemos marcado antes por ser final*/
 			if(distinguibles[i][j]!=1){
 				ntranspareslista = 0;
 				flagmarcados = 0;
 				/*Vemos que, para cada letra del alfabeto, si transicionan con ella:*/
 				for(h=0; h<nalfabeto; h++){
+          transprimero = -1;
+          transsegundo = -1;
 					/*Vemos si el primero estado transiciona, y a dónde:*/
 					for(z=0; z<nestados; z++){
 						/*Vamos probando con todos los destinos*/
@@ -319,20 +331,20 @@ int** verdistinguibles(){
 							if(listarecursiva[i][j].n != 0){
 								for(n=0; n<listarecursiva[i][j].n;n++){
 									distinguibles[listarecursiva[i][j].pares[n][0]][listarecursiva[i][j].pares[n][1]] = 1;
-									distinguibles[listarecursiva[i][j].pares[n][1]][listarecursiva[i][j].pares[n][0]] = 1;
+                  // distinguibles[listarecursiva[i][j].pares[n][1]][listarecursiva[i][j].pares[n][0]] = 1;
 								}
 							}
-							// if(listarecursiva[j][i].n != 0){
-							// 	for(n=0; n<listarecursiva[j][i].n;n++){
-							// 		distinguibles[listarecursiva[j][i].pares[n][0]][listarecursiva[j][i].pares[n][1]] = 1;
-							// 		distinguibles[listarecursiva[j][i].pares[n][1]][listarecursiva[j][i].pares[n][0]] = 1;
-							// 	}
-							// }
+							if(listarecursiva[j][i].n != 0){
+								for(n=0; n<listarecursiva[j][i].n;n++){
+									distinguibles[listarecursiva[j][i].pares[n][0]][listarecursiva[j][i].pares[n][1]] = 1;
+									// distinguibles[listarecursiva[j][i].pares[n][1]][listarecursiva[j][i].pares[n][0]] = 1;
+								}
+							}
 							/*Nos salimos del for, marcando antes que estamos ya marcados*/
 							flagmarcados = 1;
 							/*TODO: pensar si de un break salimos del for del alfabeto*/
-							/*TODO: eliminar aquellos que pudiesen estar en nuestra lista.
-							break;
+							/*TODO: eliminar aquellos que pudiesen estar en nuestra lista.*/
+
 						}
 						else{
 							/*Si no están marcados, los añadimos a la lista de futuribles.*/
@@ -342,14 +354,21 @@ int** verdistinguibles(){
 						}
 
 					}
+          if(flagmarcados == 1){
+            break;
+          }
 				}
 				/*Ahora hemos de ver si hemos marcado, porque si no, para cada estado que han ido a transicionar pero no estaban marcados, los añadimos*/
 				/*Es decir, lo que hacemos es coger los pares que hemos ido añadiendo, y los almacenamos en la lista de recursividad.*/
-				for(p=0; p<ntranspareslista; p++){
-					num = listarecursiva[transpareslista[ntranspareslista][0]][transpareslista[ntranspareslista][1]].n;
-					listarecursiva[transpareslista[ntranspareslista][0]][transpareslista[ntranspareslista][1]].pares[num][0] = i;
-					listarecursiva[transpareslista[ntranspareslista][0]][transpareslista[ntranspareslista][1]].pares[num][0] = j;
-				}
+        if(flagmarcados == 0){
+          for(p=0; p<ntranspareslista; p++){
+            num = listarecursiva[transpareslista[ntranspareslista][0]][transpareslista[ntranspareslista][1]].n;
+            listarecursiva[transpareslista[p][0]][transpareslista[p][1]].pares[num][0] = i;
+            listarecursiva[transpareslista[p][0]][transpareslista[p][1]].pares[num][0] = j;
+            listarecursiva[transpareslista[p][0]][transpareslista[p][1]].n ++;
+          }
+        }
+
 			}
 		}
 	}
@@ -362,7 +381,7 @@ AFND* transformafin (int **distinguibles, int*accesibles){
 	  int ntransactuales = 0, ntransproximas = 0, ntransaux = 0;
 	  /*Contadores*/
 	  int i, m, j, k, z, n, p, h, l;
-	  int *estadosactuales, *estadosactualesdistin;
+	  int *estadosactuales;
 	  char simbolo[2];
 	  char c;
 	  char *nombre;
@@ -386,7 +405,7 @@ AFND* transformafin (int **distinguibles, int*accesibles){
 
 	  /*Reservamos memoria para los estados actuales*/
       estadosactuales = calloc( nestados, sizeof(int) );
-      estadosactualesdistin = calloc( nestados, sizeof(int) );
+
 
 
   /*Creamos nuestra estructura intermedia.*/
@@ -444,45 +463,43 @@ AFND* transformafin (int **distinguibles, int*accesibles){
 
       /* A continuación expandimos con lambda como hacíamos en la práctica
       anterior. */
-      memcpy( estadosactualesdistin, estadosactuales, nestados * sizeof(int) );
+
 
       /* Ahora hacemos un dowhile porque en la primera iteración sí son iguales.
       En el momento en el que no varíen nuestros estadosactualeslambda hemos de
       parar, ya que ya hemos realizado el cierre transitivo.*/
-      do
-      {
-        memcpy( estadosactuales, estadosactualesdistin, nestados * sizeof(int) );
-        for( n = 0; n < nestados; n++ ) {
+
+      for( n = 0; n < nestados; n++ ) {
+
           if( estadosactuales[n] == 1 ) {
             /* Para cada estado, recorremos nuestra matriz viendo si hay un
             lambda y a qué estado transita. */
             printf(" En estado actual para ver no distin %d:\n", n );
-			if(n!=nestados-1){
-				for( j = 0; j < nestados; j++ ) {
 
-					if( distinguibles[j][n] == 0 && accesibles[j]==1) {
-					  printf( "Hemos encontrado no distin %d a partir de %d\n", j , n);
-					  estadosactualesdistin[j] = 1;
-					}
+        		for( j = n; j < nestados -1; j++ ) {
 
-				}
-			}
-			else{
-				for( j = 0; j < nestados; j++ ) {
+        			if( distinguibles[j][n] == 0 && accesibles[j]==1) {
+        			  printf( "Hemos encontrado no distin %d a partir de %d\n", j , n);
+        			  estadosactuales[j] = 1;
+        			}
 
-					if( distinguibles[n][j] == 0 && accesibles[j] == 1) {
-					  printf( "Hemos encontrado no distin %d a partir de %d\n", j,n );
-					  estadosactualesdistin[j] = 1;
-					}
+        		}
 
-				}
-			}
+
+      			for( j = 0; j < n; j++ ) {
+
+      				if( distinguibles[n][j] == 0 && accesibles[j] == 1) {
+      				  printf( "Hemos encontrado no distin %d a partir de %d\n", j,n );
+      				  estadosactuales[j] = 1;
+      				}
+
+      			}
 
           }
-        }
+      }
 
-        printf( "He salido\n" );
-	} while( memcmp( estadosactualesdistin, estadosactuales, nestados * sizeof(int) ) != 0 );
+
+
       /* Ahora sabemos que todos los estados actuales tienen que ir en uno solo,
       es decir, actualizar nuestra transición añadiendo un nuevo estado destino
       con la unión de todos. */
@@ -572,7 +589,7 @@ AFND* transformafin (int **distinguibles, int*accesibles){
 
       free( estadosfinales );
       free( estadosactuales );
-      free( estadosactualesdistin );
+
 
       /* Eliminamos la tabla. */
       for( i = 0; i < nestados; i++ ) {
@@ -773,12 +790,14 @@ int main( int argc, char**argv ) {
 
 
 
-	for(i = 1; i<nestados; i++){
+	for(i = 0; i<nestados; i++){
 		for(j=0; j<i; j++){
 			printf("%d ",distinguibles[i][j]);
+      fflush(stdout);
 		}
 		printf("\n");
 	}
+  fflush(stdout);
 	/*Ahora, una vez que tengamos todos los distinguibles, hemos de unir aquellos que no lo son en uno solo*/
 	/*Antes hemos de comprobar que son accesibles*/
 
