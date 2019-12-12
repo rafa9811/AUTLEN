@@ -256,6 +256,10 @@ int** verdistinguibles(){
 	listarecursiva = calloc(nestados, sizeof(listal*));
 	for(i=0; i<nestados; i++){
 		listarecursiva[i] = calloc(nestados, sizeof(listal));
+    for(j=0; j<nestados; j++){
+      listarecursiva[i][j].n = 0;
+    }
+
 	}
 
 	/*Lo primero que hemos de hacer es diferenciar los estados finales de los que no*/
@@ -325,17 +329,20 @@ int** verdistinguibles(){
 						/*Entonces, hemos de comprobar si están marcados para marcar a este par. */
 						if(distinguibles[transprimero][transsegundo]==1 || distinguibles[transsegundo][transprimero]==1){
 							/*Lo marcamos dos veces por si acaso, ya que la memoria tiene doble. */
+              printf("Marcamos de primeras %d, %d\n", i, j);
 							distinguibles[i][j]=1;
 							// distinguibles[j][i]=1;
 							/*Ahora hemos de marcar todos aquellos que dependían de nosotros en nuestra lista recursiva.*/
 							if(listarecursiva[i][j].n != 0){
 								for(n=0; n<listarecursiva[i][j].n;n++){
+                  printf("Marcamos por recursividad en el par %d,%d el par %d, %d\n", i,j,listarecursiva[j][i].pares[n][0],listarecursiva[j][i].pares[n][1]);
 									distinguibles[listarecursiva[i][j].pares[n][0]][listarecursiva[i][j].pares[n][1]] = 1;
                   // distinguibles[listarecursiva[i][j].pares[n][1]][listarecursiva[i][j].pares[n][0]] = 1;
 								}
 							}
 							if(listarecursiva[j][i].n != 0){
 								for(n=0; n<listarecursiva[j][i].n;n++){
+                  printf("Marcamos por el par %d,%d el par %d, %d\n", i,j,listarecursiva[j][i].pares[n][0],listarecursiva[j][i].pares[n][1]);
 									distinguibles[listarecursiva[j][i].pares[n][0]][listarecursiva[j][i].pares[n][1]] = 1;
 									// distinguibles[listarecursiva[j][i].pares[n][1]][listarecursiva[j][i].pares[n][0]] = 1;
 								}
@@ -362,9 +369,14 @@ int** verdistinguibles(){
 				/*Es decir, lo que hacemos es coger los pares que hemos ido añadiendo, y los almacenamos en la lista de recursividad.*/
         if(flagmarcados == 0){
           for(p=0; p<ntranspareslista; p++){
+            num = listarecursiva[transpareslista[ntranspareslista][1]][transpareslista[ntranspareslista][0]].n;
+            listarecursiva[transpareslista[p][1]][transpareslista[p][0]].pares[num][0] = i;
+            listarecursiva[transpareslista[p][1]][transpareslista[p][0]].pares[num][1] = j;
+            listarecursiva[transpareslista[p][1]][transpareslista[p][0]].n ++;
+
             num = listarecursiva[transpareslista[ntranspareslista][0]][transpareslista[ntranspareslista][1]].n;
             listarecursiva[transpareslista[p][0]][transpareslista[p][1]].pares[num][0] = i;
-            listarecursiva[transpareslista[p][0]][transpareslista[p][1]].pares[num][0] = j;
+            listarecursiva[transpareslista[p][0]][transpareslista[p][1]].pares[num][1] = j;
             listarecursiva[transpareslista[p][0]][transpareslista[p][1]].n ++;
           }
         }
@@ -797,7 +809,7 @@ int main( int argc, char**argv ) {
 		}
 		printf("\n");
 	}
-  fflush(stdout);
+  // fflush(stdout);
 	/*Ahora, una vez que tengamos todos los distinguibles, hemos de unir aquellos que no lo son en uno solo*/
 	/*Antes hemos de comprobar que son accesibles*/
 
