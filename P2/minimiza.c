@@ -23,7 +23,7 @@ AFND *transforma_estructura( auti *a ) {
     return NULL;
   }
   /* Vemos cuantos estados, simbolos y transiciones tenemos extrayéndolos de la
-  // estructura intermedia.*/
+  estructura intermedia.*/
   nestados = auti_getNestados( a);
   nsimbolos = auti_getNsimbolos( a );
   ntransiciones = auti_getNtransiciones( a );
@@ -54,7 +54,7 @@ AFND *transforma_estructura( auti *a ) {
   }
   free( estados );
 
-  /* Insertamos transiciones. Asumimos que no tendremos transiciones lambdas*/
+
   transiciones = auti_getTransiciones( a );
   for( i = 0; i < ntransiciones; i++ ) {
     aux1 = t_getEini( transiciones[i] );
@@ -79,37 +79,24 @@ AFND *transforma_estructura( auti *a ) {
 
 /*Función que lee de fichero y lo almacena en las variables globales*/
 void leerFichero(FILE* file){
-  AFND *aut = NULL;
-    int ntrepite, ne, flagfinal, flaginicial, flagtransitar;
-    int ntransactuales = 0, ntransproximas = 0, ntransaux = 0;
     /*Contadores*/
-    int i, m, j, k, z, n, p, h, l;
-    int *estadosactuales, *estadosactualeslambda;
+    int i, j, k;
     char simbolo[2];
     char c;
-    char *nombre;
-    char **mem;
     char nestadoschar[5];
-    transicion **transproximas, **transaux, **trepite, **transactuales;
-    transicion *transini, *trans;
-    nuevoestado *eaux1, *eaux2, *einicial, *evacio, *e, *aux;
+
+
 
 
     if( !file ) {
       fprintf( stderr, "AFNDTransforma: no existe fichero\n" );
-      return NULL;
+      return;
     }
 
-    /* Reservamos memoria para todos los punteros de transiciones y estructuras
-    que vamos a utilizar. */
-    transactuales = calloc( STDTAM, sizeof(transicion*) );
-    transproximas = calloc( STDTAM, sizeof(transicion*) );
-    transaux = calloc( STDTAM, sizeof(transicion*) );
-    trepite = calloc( STDTAM, sizeof(transicion*) );
 
-    for( i = 0; i < STDTAM; i++ ) transaux[i] = t_ini();
-    for( i = 0; i < STDTAM; i++ ) trepite[i] = t_ini();
-    for( i = 0; i < STDTAM; i++ ) transproximas[i] = t_ini();
+
+
+
 
     autointer = auti_ini();
 
@@ -136,9 +123,6 @@ void leerFichero(FILE* file){
     for( i = 0; i < nestados; i++ ) estadosfinales[i] = getc( file ) - '0';
     getc( file );
 
-    /*Reservamos memoria para los estados actuales*/
-    estadosactuales = calloc( nestados, sizeof(int) );
-    estadosactualeslambda = calloc( nestados, sizeof(int) );
 
     /*Leemos el cardinal del alfabeto*/
     nalfabeto = getc( file ) - '0';
@@ -192,15 +176,14 @@ int* eliminarInaccesibles(){
   accesiblesnext[estadoinicial] = 1;
 
   /* Ahora hacemos un dowhile porque en la primera iteración sí son iguales.
-  En el momento en el que no varíen nuestros estadosactualeslambda hemos de
+  En el momento en el que no varíen nuestros accesibles next hemos de
   parar, ya que ya hemos realizado el cierre transitivo.*/
   do
   {
    memcpy( accesibles, accesiblesnext, nestados * sizeof(int) );
    for( n = 0; n < nestados; n++ ) {
      if( accesibles[n] == 1 ) {
-       /* Para cada estado, recorremos nuestra matriz viendo si hay un
-       lambda y a qué estado transita. */
+
        printf(" En estado actual para ver accesibilidad %d:\n", n );
        for( j = 0; j < nestados; j++ ) {
 
@@ -223,7 +206,8 @@ int* eliminarInaccesibles(){
 
 int** verdistinguibles(){
 	typedef struct _listal listal;
-	typedef struct _listal{
+
+	struct _listal{
 		int pares[50][2];
 		int n;
 	};
@@ -255,10 +239,11 @@ int** verdistinguibles(){
 
 	listarecursiva = calloc(nestados, sizeof(listal*));
 	for(i=0; i<nestados; i++){
+
 		listarecursiva[i] = calloc(nestados, sizeof(listal));
-    for(j=0; j<nestados; j++){
-      listarecursiva[i][j].n = 0;
-    }
+	    for(j=0; j<nestados; j++){
+	      listarecursiva[i][j].n = 0;
+	    }
 
 	}
 
@@ -283,7 +268,7 @@ int** verdistinguibles(){
     }
 
 	}
-	//Obtenemos todos los símbolos del alfabeto.
+	/*Obtenemos todos los símbolos del alfabeto.*/
 	alfb = auti_getSimbolos( autointer );
 	transprimero = -1;
 	transsegundo = -1;
@@ -331,26 +316,25 @@ int** verdistinguibles(){
 							/*Lo marcamos dos veces por si acaso, ya que la memoria tiene doble. */
               printf("Marcamos de primeras %d, %d\n", i, j);
 							distinguibles[i][j]=1;
-							// distinguibles[j][i]=1;
+
 							/*Ahora hemos de marcar todos aquellos que dependían de nosotros en nuestra lista recursiva.*/
 							if(listarecursiva[i][j].n != 0){
 								for(n=0; n<listarecursiva[i][j].n;n++){
                   printf("Marcamos por recursividad en el par %d,%d el par %d, %d\n", i,j,listarecursiva[j][i].pares[n][0],listarecursiva[j][i].pares[n][1]);
 									distinguibles[listarecursiva[i][j].pares[n][0]][listarecursiva[i][j].pares[n][1]] = 1;
-                  // distinguibles[listarecursiva[i][j].pares[n][1]][listarecursiva[i][j].pares[n][0]] = 1;
+
 								}
 							}
 							if(listarecursiva[j][i].n != 0){
 								for(n=0; n<listarecursiva[j][i].n;n++){
                   printf("Marcamos por el par %d,%d el par %d, %d\n", i,j,listarecursiva[j][i].pares[n][0],listarecursiva[j][i].pares[n][1]);
 									distinguibles[listarecursiva[j][i].pares[n][0]][listarecursiva[j][i].pares[n][1]] = 1;
-									// distinguibles[listarecursiva[j][i].pares[n][1]][listarecursiva[j][i].pares[n][0]] = 1;
+
 								}
 							}
 							/*Nos salimos del for, marcando antes que estamos ya marcados*/
 							flagmarcados = 1;
-							/*TODO: pensar si de un break salimos del for del alfabeto*/
-							/*TODO: eliminar aquellos que pudiesen estar en nuestra lista.*/
+
 
 						}
 						else{
@@ -384,6 +368,21 @@ int** verdistinguibles(){
 			}
 		}
 	}
+	/*Liberamos ahora toda la memoria utilizada*/
+	for(i=0; i<50; i++){
+		free(transpareslista[i]);
+	}
+	free(transpareslista);
+	for(i=0;i<nestados;i++){
+		free(listarecursiva[i]);
+	}
+	free(listarecursiva);
+
+	for(i=0; i < auti_getNsimbolos( autointer );i++){
+		free(alfb[i]);
+	}
+	free(alfb);
+
 	return distinguibles;
 }
 
@@ -395,7 +394,6 @@ AFND* transformafin (int **distinguibles, int*accesibles){
 	  int i, m, j, k, z, n, p, h, l;
 	  int *estadosactuales;
 	  char simbolo[2];
-	  char c;
 	  char *nombre;
 	  char **mem;
 	  transicion **transproximas, **transaux, **trepite, **transactuales;
@@ -438,22 +436,21 @@ AFND* transformafin (int **distinguibles, int*accesibles){
   trans = t_ini();
   eaux1 = ne_ini( UNDEFINED );
 
-  /*Pasamos de las transiciones actuales a estados actuales para encontrar los
-  lambda. Inicialmente tenemos solo la transición inicial, y luego en los
+  /* Inicialmente tenemos solo la transición inicial, y luego en los
   siguientes bucles iremos entrando con nuevas transiciones.*/
   while( ntransactuales != 0 ) {
     /*Flag con la que controlamos que hemos descubierto un estado nuevo.*/
     flagtransitar = 0;
     /*Recorremos cada transición actual cogiendo su estado destino y viendo si
-    de este se puede transitar con lambda y si es así, creamos un nuevo estado.*/
+    de este se puede ir a indistinguibles y si es así, creamos un nuevo estado.*/
     for( i = 0; i < ntransactuales; i++ ) {
       ntransproximas = 0;
       printf( "Tratamos para accesibles e distinguibles la siguiente transición:\n" );
       print_transicion( transactuales[i] );
       printf( "\n" );
       /* Ponemos a cero todos los estados actuales para esta transición, ya que
-      en estados actuales tendremos todos los estados destino a los que se puede
-      transitar con lambda y que por tanto en nuestro AFD deben estar en un
+      en estados actuales tendremos todos los estados destino a los que son indistinguibles
+	   y que por tanto en nuestro AFD deben estar en un
       mismo estado. */
       for( m = 0; m < nestados; m++ ) estadosactuales[m] = 0;
       /* Añadimos los estados que ya forman parte de nuestro estado final de la
@@ -473,19 +470,14 @@ AFND* transformafin (int **distinguibles, int*accesibles){
       free( mem );
       ne_free( aux );
 
-      /* A continuación expandimos con lambda como hacíamos en la práctica
-      anterior. */
+      /* A continuación expandimos con indistinguibles */
 
-
-      /* Ahora hacemos un dowhile porque en la primera iteración sí son iguales.
-      En el momento en el que no varíen nuestros estadosactualeslambda hemos de
-      parar, ya que ya hemos realizado el cierre transitivo.*/
 
       for( n = 0; n < nestados; n++ ) {
 
           if( estadosactuales[n] == 1 ) {
             /* Para cada estado, recorremos nuestra matriz viendo si hay un
-            lambda y a qué estado transita. */
+            indistinguibles y a qué estado transita. */
             printf(" En estado actual para ver no distin %d:\n", n );
 
         		for( j = n; j < nestados -1; j++ ) {
@@ -539,7 +531,7 @@ AFND* transformafin (int **distinguibles, int*accesibles){
       ne_setNombre( e, nombre );
       free( nombre );
 
-      /* Una vez transitado con lambda, es el momento cuando podemos asegurar que
+      /* Una vez visto indistinguibles y accesibilidad, es el momento cuando podemos asegurar que
       tanto los estados que tenemos como nuestras transciones actuales no van
       a ser ya modificadas, y por tanto podemos almacenarlas en nuestro
       autómata que es nuestra estructura intermedia.*/
@@ -547,8 +539,11 @@ AFND* transformafin (int **distinguibles, int*accesibles){
       /* Comprobamos que el estado que hemos querido añadir no estaba ya en
       nuestra lista, es decir, que es nuevo, y que por tanto aún no hemos
       acabado el algoritmo. */
-      if( auti_anadirEstado(autointer, e) == 0 ) flagtransitar = 1;
-
+      if( auti_anadirEstado(autointer, e) == 0 ){
+		  printf("FLAG TRANSITAR: %d\n", flagtransitar);
+		  print_nuevoestado(e);
+		  flagtransitar = 1;
+	  }
       /* Modificamos nuestra transición actual añadiendo el nuevo estado destino,
       y ya la añadimos al autómata. */
       t_set_efin( transactuales[i], e );
@@ -561,11 +556,13 @@ AFND* transformafin (int **distinguibles, int*accesibles){
       print_transicion( transactuales[i] );
       auti_anadirTransicion( autointer, transactuales[i] );
       /* Una vez que lo hemos hecho, podemos seguir con la próxima transición
-      viendo si transita con lambda y la almacenamos..*/
+      viendo si hay indistinguibles y la almacenamos..*/
     }
 
     /* Miramos si realmente hemos añadido estados: */
     if( flagtransitar != 1 ) {
+
+
       /* Si ya hemos terminado, creamos a partir de nuestra estructura intermedia
         el automata determinista con las funciones de la api. */
       printf( "\nLa conversión ha terminado. Imprimiendo...\n\n" );
@@ -633,7 +630,7 @@ AFND* transformafin (int **distinguibles, int*accesibles){
       for( m = 0; m < ne_getNestados( aux ); m++ ) {
         ne =  NumeroEstado( mem[m] );
         printf( "\n\n\n" );
-        printf( "Añadimos a estados actuales tras ver lambda: %d\n", ne );
+        printf( "Añadimos a estados actuales tras ver distinguibles: %d\n", ne );
         estadosactuales[ne] = 1;
       }
       for( m = 0; m < 1024; m++ ) free( mem[m] );
@@ -737,7 +734,7 @@ AFND* transformafin (int **distinguibles, int*accesibles){
     /* Ahora, una vez que ya hemos transitado con los símbolos, hemos de seguir
     con la siguiente iteración del bucle inicial. Por tanto, copiamos las
     próximas a las actuales, y ya volvemos a ver si se puede en cada una de
-    ellas transitar con lambdas y las almacenamos en nuestra estructura
+    ellas unir con indistinguibles y las almacenamos en nuestra estructura
     intermedia. */
 
     for( p = 0; p < ntransproximas; p++ ) {
@@ -793,7 +790,7 @@ int main( int argc, char**argv ) {
   }
   printf("\n");
   printf("estados finales: %d", estadosfinales[i]);
-  fflush(stdout);
+
 	accesibles = eliminarInaccesibles();
 	for(i=0;i<nestados;i++){
 	  printf("%d\n", accesibles[i]);
@@ -805,11 +802,11 @@ int main( int argc, char**argv ) {
 	for(i = 0; i<nestados; i++){
 		for(j=0; j<i; j++){
 			printf("%d ",distinguibles[i][j]);
-      fflush(stdout);
+
 		}
 		printf("\n");
 	}
-  // fflush(stdout);
+
 	/*Ahora, una vez que tengamos todos los distinguibles, hemos de unir aquellos que no lo son en uno solo*/
 	/*Antes hemos de comprobar que son accesibles*/
 
@@ -820,6 +817,13 @@ int main( int argc, char**argv ) {
 
 
 	aut = transformafin( distinguibles, accesibles );
+
+	for(i=0; i<nestados; i++){
+		free(distinguibles[i]);
+	}
+
+	free(distinguibles);
+	free(accesibles);
 	AFNDImprime( stdout, aut );
 	AFNDADot( aut );
 	AFNDElimina( aut );

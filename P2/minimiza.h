@@ -5,7 +5,7 @@
 
 #define OK 0
 #define ERROR -1
-#define STDTAM 15
+#define STDTAM 50
 
 
 void leerFichero(FILE * file);
